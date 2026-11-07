@@ -1,0 +1,74 @@
+{
+  "asset": "assets/gifs/integrator-comparison.gif",
+  "fps": 15,
+  "frames": 181,
+  "config": {
+    "physical": {
+      "m1": 1.0,
+      "m2": 1.0,
+      "L1": 1.0,
+      "L2": 1.0,
+      "g": 9.81,
+      "damping1": 0.0,
+      "damping2": 0.0,
+      "drive_amplitude": 0.0,
+      "drive_frequency": 0.0,
+      "drive_phase": 0.0
+    },
+    "initial": {
+      "theta1_deg": 178.0,
+      "theta2_deg": 180.0,
+      "omega1": 0.0,
+      "omega2": 0.0
+    },
+    "numerics": {
+      "method": "rk4",
+      "dt": 0.001,
+      "rtol": 1e-10,
+      "atol": 1e-10,
+      "t_max": 12.0,
+      "output_dt": 0.004166666666666667
+    },
+    "name": "Integrator Showdown"
+  },
+  "settings": [
+    [
+      "RK4 dt=0.01",
+      {
+        "numerics.method": "rk4",
+        "numerics.dt": 0.01
+      }
+    ],
+    [
+      "RK45 rtol=1e-6",
+      {
+        "numerics.method": "rk45",
+        "numerics.rtol": 1e-06,
+        "numerics.atol": 1e-09
+      }
+    ],
+    [
+      "DOP853 rtol=1e-10",
+      {
+        "numerics.method": "dop853",
+        "numerics.rtol": 1e-10,
+        "numerics.atol": 1e-10
+      }
+    ]
+  ],
+  "max_energy_error": {
+    "RK4 dt=0.01": 0.0003735137099850491,
+    "RK45 rtol=1e-6": 4.24434323571495e-05,
+    "DOP853 rtol=1e-10": 1.783609347135921e-09
+  },
+  "stamp": {
+    "chaos_lab_version": "0.2.0",
+    "git_commit": "7d474ff",
+    "created_utc": "2026-11-07T01:51:14+00:00",
+    "python": "3.14.7",
+    "numpy": "2.5.4",
+    "scipy": "1.18.1",
+    "matplotlib": "3.11.2",
+    "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O"
+  }
+}

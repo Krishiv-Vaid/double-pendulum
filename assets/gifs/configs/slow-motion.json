@@ -1,0 +1,47 @@
+{
+  "asset": "assets/gifs/slow-motion.gif",
+  "fps": 10.0,
+  "frames": 61,
+  "config": {
+    "physical": {
+      "m1": 1.0,
+      "m2": 1.0,
+      "L1": 1.0,
+      "L2": 1.0,
+      "g": 9.81,
+      "damping1": 0.0,
+      "damping2": 0.0,
+      "drive_amplitude": 0.0,
+      "drive_frequency": 0.0,
+      "drive_phase": 0.0
+    },
+    "initial": {
+      "theta1_deg": 120.0,
+      "theta2_deg": -10.0,
+      "omega1": 0.0,
+      "omega2": 0.0
+    },
+    "numerics": {
+      "method": "dop853",
+      "dt": 0.001,
+      "rtol": 1e-11,
+      "atol": 1e-11,
+      "t_max": 10.0,
+      "output_dt": 0.004166666666666667
+    },
+    "name": "Slow Motion"
+  },
+  "playback_speed": 0.2,
+  "peak_time_s": 2.1670000000000003,
+  "peak_omega": 9.340331865126727,
+  "stamp": {
+    "chaos_lab_version": "0.2.0",
+    "git_commit": "7d474ff",
+    "created_utc": "2026-11-07T01:51:21+00:00",
+    "python": "3.14.7",
+    "numpy": "2.5.4",
+    "scipy": "1.18.1",
+    "matplotlib": "3.11.2",
+    "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O"
+  }
+}

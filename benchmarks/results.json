@@ -1,0 +1,199 @@
+{
+  "settings": {
+    "quick": false
+  },
+  "results": [
+    {
+      "name": "RK4 single trajectory",
+      "value": 22907.644395457562,
+      "unit": "steps/s",
+      "settings": {
+        "t_max": 30.0,
+        "dt": 0.001
+      }
+    },
+    {
+      "name": "RK4 single trajectory wall time",
+      "value": 1.309606500000882,
+      "unit": "s",
+      "settings": {
+        "t_max": 30.0,
+        "dt": 0.001
+      }
+    },
+    {
+      "name": "RK45 wall time (rtol=atol=1e-10)",
+      "value": 0.373561125001288,
+      "unit": "s",
+      "settings": {
+        "t_max": 30.0,
+        "nfev": 26690
+      }
+    },
+    {
+      "name": "RK45 max |dE/E0|",
+      "value": 3.781756052381747e-07,
+      "unit": "1",
+      "settings": {
+        "rtol": 1e-10
+      }
+    },
+    {
+      "name": "DOP853 wall time (rtol=atol=1e-10)",
+      "value": 0.36121729200021946,
+      "unit": "s",
+      "settings": {
+        "t_max": 30.0,
+        "nfev": 21848
+      }
+    },
+    {
+      "name": "DOP853 max |dE/E0|",
+      "value": 3.3519986831934887e-07,
+      "unit": "1",
+      "settings": {
+        "rtol": 1e-10
+      }
+    },
+    {
+      "name": "RK4 max |dE/E0| (dt=0.004)",
+      "value": 8.844220613896005e-05,
+      "unit": "1",
+      "settings": {
+        "t_max": 30.0
+      }
+    },
+    {
+      "name": "RK4 max |dE/E0| (dt=0.002)",
+      "value": 3.6991195158356387e-06,
+      "unit": "1",
+      "settings": {
+        "t_max": 30.0
+      }
+    },
+    {
+      "name": "RK4 max |dE/E0| (dt=0.001)",
+      "value": 1.4252747036228806e-07,
+      "unit": "1",
+      "settings": {
+        "t_max": 30.0
+      }
+    },
+    {
+      "name": "RK4 observed order (final-state error)",
+      "value": 4.044643541783091,
+      "unit": "",
+      "settings": {
+        "dts": [
+          0.004,
+          0.002,
+          0.001
+        ],
+        "t_max": 3.0
+      }
+    },
+    {
+      "name": "10-pendulum ensemble RK4",
+      "value": 101520.43789323312,
+      "unit": "pendulum-steps/s",
+      "settings": {
+        "t_max": 10.0,
+        "dt": 0.002,
+        "wall_s": 0.4925116660015192
+      }
+    },
+    {
+      "name": "100-pendulum ensemble RK4",
+      "value": 934044.9822040264,
+      "unit": "pendulum-steps/s",
+      "settings": {
+        "t_max": 10.0,
+        "dt": 0.002,
+        "wall_s": 0.5353061250007158
+      }
+    },
+    {
+      "name": "1000-pendulum ensemble RK4",
+      "value": 4636714.219836606,
+      "unit": "pendulum-steps/s",
+      "settings": {
+        "t_max": 5.0,
+        "dt": 0.002,
+        "wall_s": 0.5391749160007748
+      }
+    },
+    {
+      "name": "first-flip map 200x200 (parallel)",
+      "value": 4.951368707999791,
+      "unit": "s",
+      "settings": {
+        "workers": 9,
+        "t_max": 10.0,
+        "dt": 0.005
+      }
+    },
+    {
+      "name": "first-flip map 200x200 (1 process)",
+      "value": 3.786098333999689,
+      "unit": "s",
+      "settings": {}
+    },
+    {
+      "name": "map parallel speed-up",
+      "value": 0.7646569175675796,
+      "unit": "x",
+      "settings": {}
+    },
+    {
+      "name": "raster render 640x640 (fade trail + glow)",
+      "value": 12.71754946933021,
+      "unit": "frames/s",
+      "settings": {}
+    },
+    {
+      "name": "GIF export 5 s @ 20 fps, 480x480",
+      "value": 5.188357375000123,
+      "unit": "s",
+      "settings": {
+        "frames": 100
+      }
+    },
+    {
+      "name": "MP4 export 5 s @ 30 fps, 1280x720",
+      "value": 28.368846666000536,
+      "unit": "s",
+      "settings": {
+        "frames": 150
+      }
+    },
+    {
+      "name": "peak traced memory: 30 s RK4 run (1/240 s output)",
+      "value": 0.4027099609375,
+      "unit": "MiB",
+      "settings": {}
+    },
+    {
+      "name": "peak traced memory: 100-pendulum ensemble 10 s",
+      "value": 2.1564292907714844,
+      "unit": "MiB",
+      "settings": {}
+    }
+  ],
+  "environment": {
+    "hardware": {
+      "machine": "arm64",
+      "processor": "arm",
+      "cpu_count": 10,
+      "cpu": "Apple M4",
+      "memory_gb": 16.0
+    },
+    "chaos_lab_version": "0.2.0",
+    "git_commit": "f25c429",
+    "created_utc": "2026-11-07T01:44:54+00:00",
+    "python": "3.14.7",
+    "numpy": "2.5.4",
+    "scipy": "1.18.1",
+    "matplotlib": "3.11.2",
+    "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O"
+  }
+}

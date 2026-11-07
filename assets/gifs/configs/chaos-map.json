@@ -1,0 +1,47 @@
+{
+  "asset": "assets/gifs/chaos-map.gif",
+  "fps": 12,
+  "frames": 51,
+  "map_spec": {
+    "observable": "first_flip",
+    "theta1_range": [
+      -180.0,
+      180.0
+    ],
+    "theta2_range": [
+      -180.0,
+      180.0
+    ],
+    "nx": 260,
+    "ny": 260,
+    "t_max": 10.0,
+    "dt": 0.005,
+    "omega1": 0.0,
+    "omega2": 0.0,
+    "sensitivity_d0": 1e-08,
+    "physical": {
+      "m1": 1.0,
+      "m2": 1.0,
+      "L1": 1.0,
+      "L2": 1.0,
+      "g": 9.81,
+      "damping1": 0.0,
+      "damping2": 0.0,
+      "drive_amplitude": 0.0,
+      "drive_frequency": 0.0,
+      "drive_phase": 0.0
+    }
+  },
+  "serial_compute_s": 9.213316916999247,
+  "observable": "first_flip: time until either arm passes over the top",
+  "stamp": {
+    "chaos_lab_version": "0.2.0",
+    "git_commit": "7d474ff",
+    "created_utc": "2026-11-07T01:51:03+00:00",
+    "python": "3.14.7",
+    "numpy": "2.5.4",
+    "scipy": "1.18.1",
+    "matplotlib": "3.11.2",
+    "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O"
+  }
+}

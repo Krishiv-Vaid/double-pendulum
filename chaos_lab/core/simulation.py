@@ -9,7 +9,7 @@ import numpy as np
 
 from chaos_lab.core import physics
 from chaos_lab.core.config import SimConfig
-from chaos_lab.core.integrators import integrate_adaptive, integrate_rk4
+from chaos_lab.core.integrators import integrate_adaptive, integrate_rk4_double_pendulum
 
 
 @dataclass
@@ -110,7 +110,8 @@ def simulate(cfg: SimConfig, callback=None, y0=None) -> Result:
     y0 = np.asarray(cfg.initial.state() if y0 is None else y0, dtype=float)
     if num.method == "rk4":
         every = max(1, int(round(num.output_dt / num.dt)))
-        out = integrate_rk4(f, y0, num.t_max, num.dt, output_every=every, callback=callback)
+        out = integrate_rk4_double_pendulum(cfg.physical, y0, num.t_max, num.dt, output_every=every,
+                                            callback=callback)
     else:
         n = int(round(num.t_max / num.output_dt))
         t_eval = np.linspace(0.0, n * num.output_dt, n + 1)

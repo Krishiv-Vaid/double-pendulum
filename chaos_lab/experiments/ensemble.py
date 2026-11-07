@@ -119,7 +119,9 @@ def butterfly(
         },
     }
     if numerical_control:
-        _, Yh = integrate_batch(p, base[None, :], num.t_max, num.dt / 2, num.output_dt)
+        # dt/2 run sampled at exactly the same physical times (2x the stride in steps)
+        every = max(1, int(round(num.output_dt / num.dt)))
+        _, Yh = integrate_batch(p, base[None, :], num.t_max, num.dt / 2, every * num.dt)
         m = min(len(Yh), len(Y))
         out["numerical_control"] = physics.state_distance(Yh[:m, 0], Y[:m, 0], tau)
     return out

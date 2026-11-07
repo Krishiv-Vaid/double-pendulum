@@ -1,0 +1,85 @@
+{
+  "asset": "assets/gifs/regular-vs-chaotic.gif",
+  "fps": 15,
+  "frames": 211,
+  "configs": [
+    {
+      "physical": {
+        "m1": 1.0,
+        "m2": 1.0,
+        "L1": 1.0,
+        "L2": 1.0,
+        "g": 9.81,
+        "damping1": 0.0,
+        "damping2": 0.0,
+        "drive_amplitude": 0.0,
+        "drive_frequency": 0.0,
+        "drive_phase": 0.0
+      },
+      "initial": {
+        "theta1_deg": 60.0,
+        "theta2_deg": 40.0,
+        "omega1": 0.0,
+        "omega2": 0.0
+      },
+      "numerics": {
+        "method": "rk4",
+        "dt": 0.001,
+        "rtol": 1e-10,
+        "atol": 1e-10,
+        "t_max": 40.0,
+        "output_dt": 0.004166666666666667
+      },
+      "name": "Regular"
+    },
+    {
+      "physical": {
+        "m1": 1.0,
+        "m2": 1.0,
+        "L1": 1.0,
+        "L2": 1.0,
+        "g": 9.81,
+        "damping1": 0.0,
+        "damping2": 0.0,
+        "drive_amplitude": 0.0,
+        "drive_frequency": 0.0,
+        "drive_phase": 0.0
+      },
+      "initial": {
+        "theta1_deg": 135.0,
+        "theta2_deg": -45.0,
+        "omega1": 0.0,
+        "omega2": 0.0
+      },
+      "numerics": {
+        "method": "rk4",
+        "dt": 0.001,
+        "rtol": 1e-10,
+        "atol": 1e-10,
+        "t_max": 40.0,
+        "output_dt": 0.004166666666666667
+      },
+      "name": "Chaotic"
+    }
+  ],
+  "labels": [
+    "regular \u00b7 \u03bb \u2248 0.06 s\u207b\u00b9",
+    "chaotic \u00b7 \u03bb \u2248 0.94 s\u207b\u00b9"
+  ],
+  "playback_speed": 1.0,
+  "lyapunov_40s": [
+    0.05907930102460091,
+    0.9410229107252948
+  ],
+  "note": "Finite-time Lyapunov estimates over 40 s (tangent method).",
+  "stamp": {
+    "chaos_lab_version": "0.2.0",
+    "git_commit": "7d474ff",
+    "created_utc": "2026-11-07T01:51:35+00:00",
+    "python": "3.14.7",
+    "numpy": "2.5.4",
+    "scipy": "1.18.1",
+    "matplotlib": "3.11.2",
+    "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O"
+  }
+}

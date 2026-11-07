@@ -1,0 +1,90 @@
+{
+  "output": "/Users/krishivvaid/double-pendulum/assets/videos/hero-chaos-720p.mp4",
+  "fps": 30,
+  "frames": 601,
+  "playback_speed": 1.0,
+  "t_range_s": [
+    0.0,
+    20.0
+  ],
+  "config": {
+    "physical": {
+      "m1": 1.0,
+      "m2": 1.0,
+      "L1": 1.0,
+      "L2": 1.0,
+      "g": 9.81,
+      "damping1": 0.0,
+      "damping2": 0.0,
+      "drive_amplitude": 0.0,
+      "drive_frequency": 0.0,
+      "drive_phase": 0.0
+    },
+    "initial": {
+      "theta1_deg": 160.0,
+      "theta2_deg": 20.0,
+      "omega1": 0.0,
+      "omega2": 0.0
+    },
+    "numerics": {
+      "method": "rk4",
+      "dt": 0.001,
+      "rtol": 1e-10,
+      "atol": 1e-10,
+      "t_max": 20.0,
+      "output_dt": 0.004166666666666667
+    },
+    "name": "Hero video"
+  },
+  "style": {
+    "width": 1280,
+    "height": 720,
+    "ssaa": 2,
+    "background": "#070910",
+    "transparent": false,
+    "palette": "rainbow",
+    "trail": "fade",
+    "trail_seconds": 5.0,
+    "trail_width": 2.2,
+    "glow": 1.0,
+    "glow_radius": 6.0,
+    "exposure_decay": 1.0,
+    "rod_color": "#F4F7FF",
+    "rod_width": 3.0,
+    "bob_colors": [
+      "#00E5FF",
+      "#FF3CAC"
+    ],
+    "bob_radius": 9.0,
+    "show_pendulum": true,
+    "show_pivot": true,
+    "particles": "none",
+    "particle_count": 400,
+    "particle_lifetime": 1.2,
+    "particle_size": 2.0,
+    "particle_speed": 0.6,
+    "particle_opacity": 0.9,
+    "camera": "static",
+    "zoom": 1.0,
+    "pan": [
+      0.0,
+      0.0
+    ],
+    "camera_smoothing": 0.15,
+    "motion_blur": 0,
+    "overlay_text": [],
+    "seed": 0
+  },
+  "preset": null,
+  "stamp": {
+    "chaos_lab_version": "0.2.0",
+    "git_commit": "7d474ff",
+    "created_utc": "2026-11-07T01:53:17+00:00",
+    "python": "3.14.7",
+    "numpy": "2.5.4",
+    "scipy": "1.18.1",
+    "matplotlib": "3.11.2",
+    "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+    "config_digest": "1846957171836b3a"
+  }
+}

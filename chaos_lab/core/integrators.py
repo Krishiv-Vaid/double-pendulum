@@ -10,6 +10,7 @@
 
 from __future__ import annotations
 
+import math
 import time
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -120,3 +121,68 @@ def integrate_adaptive(
         t_events=sol.t_events,
         y_events=sol.y_events,
     )
+
+
+def integrate_rk4_double_pendulum(p, y0, t_max: float, dt: float, output_every: int = 1,
+                                  callback=None) -> IntegrationOutput:
+    """Fast path: RK4 for a *single* double pendulum using Python floats.
+
+    On a 4-element state NumPy's per-call overhead dominates, so plain float
+    arithmetic is ~20x faster (measured: see benchmarks/results.md). The equations are the same as
+    :func:`chaos_lab.core.physics.derivatives` (the test suite pins the two
+    implementations to agree to ~1e-12).
+    """
+    m1, m2, L1, L2, g = float(p.m1), float(p.m2), float(p.L1), float(p.L2), float(p.g)
+    b1, b2 = float(p.damping1), float(p.damping2)
+    A, Om, ph = float(p.drive_amplitude), float(p.drive_frequency), float(p.drive_phase)
+    M = m1 + m2
+    sin, cos = math.sin, math.cos
+
+    def f(t, a, b, w1, w2):
+        d = a - b
+        c, s = cos(d), sin(d)
+        rel = w2 - w1
+        q1 = -b1 * w1 + b2 * rel + (A * cos(Om * t + ph) if A else 0.0)
+        q2 = -b2 * rel
+        r1 = -m2 * L2 * w2 * w2 * s - M * g * sin(a) + q1 / L1
+        r2 = L1 * w1 * w1 * s - g * sin(b) + q2 / (m2 * L2)
+        bb = m2 * L2 * c
+        cc = L1 * c
+        aa = M * L1
+        det = aa * L2 - bb * cc
+        return w1, w2, (r1 * L2 - bb * r2) / det, (aa * r2 - cc * r1) / det
+
+    n = int(round(t_max / dt))
+    if n < 1:
+        raise ValueError("t_max must be at least one step")
+    th1, th2, w1, w2 = (float(v) for v in y0)
+    n_out = n // output_every + 1
+    out = np.empty((n_out, 4))
+    out[0] = (th1, th2, w1, w2)
+    h2, h6 = 0.5 * dt, dt / 6.0
+    k = 1
+    success, message = True, "completed"
+    t0 = time.perf_counter()
+    for i in range(1, n + 1):
+        t = (i - 1) * dt
+        a1, a2, a3, a4 = f(t, th1, th2, w1, w2)
+        b1_, b2_, b3_, b4_ = f(t + h2, th1 + h2 * a1, th2 + h2 * a2, w1 + h2 * a3, w2 + h2 * a4)
+        c1, c2, c3, c4 = f(t + h2, th1 + h2 * b1_, th2 + h2 * b2_, w1 + h2 * b3_, w2 + h2 * b4_)
+        d1, d2, d3, d4 = f(t + dt, th1 + dt * c1, th2 + dt * c2, w1 + dt * c3, w2 + dt * c4)
+        th1 += h6 * (a1 + 2 * b1_ + 2 * c1 + d1)
+        th2 += h6 * (a2 + 2 * b2_ + 2 * c2 + d2)
+        w1 += h6 * (a3 + 2 * b3_ + 2 * c3 + d3)
+        w2 += h6 * (a4 + 2 * b4_ + 2 * c4 + d4)
+        if i % output_every == 0:
+            out[k] = (th1, th2, w1, w2)
+            k += 1
+        if i % 1000 == 0:
+            if not (math.isfinite(th1) and math.isfinite(th2) and math.isfinite(w1) and math.isfinite(w2)):
+                success, message = False, f"non-finite state at t={i * dt:.6g}s"
+                break
+            if callback is not None and callback(i, n):
+                success, message = False, "cancelled"
+                break
+    out = out[:k]
+    return IntegrationOutput(np.arange(k) * dt * output_every, out, nfev=4 * (k - 1) * output_every,
+                             runtime=time.perf_counter() - t0, success=success, message=message)
