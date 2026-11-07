@@ -37,6 +37,11 @@ from chaos_lab.core.integrators import rk4_step
 OBSERVABLES = ("first_flip", "rotations", "max_omega", "sensitivity", "energy")
 CACHE_DIR = Path(os.environ.get("CHAOS_LAB_CACHE", Path.home() / ".cache" / "chaos_lab")) / "maps"
 MAX_PIXELS = 1_000_000
+# Vectorized RK4 amortizes NumPy call overhead over many pixels, so chunks should be large;
+# process-pool start-up (~0.5-1 s on spawn platforms) only pays off for big maps (measured,
+# see benchmarks/results.md).
+PIXELS_PER_CHUNK = 20_000
+PARALLEL_MIN_PIXELS = 120_000
 
 
 @dataclass(frozen=True)
@@ -178,10 +183,12 @@ def compute_map(spec: MapSpec, workers: int | None = None, rows_per_chunk: int |
         if progress:
             progress(1.0, data)
         return data
-    workers = workers or max(1, (os.cpu_count() or 2) - 1)
     if rows_per_chunk is None:
-        rows_per_chunk = max(1, min(32, spec.ny // (workers * 4) or 1))
+        rows_per_chunk = max(1, PIXELS_PER_CHUNK // spec.nx)
     chunks = [(a, min(a + rows_per_chunk, spec.ny)) for a in range(0, spec.ny, rows_per_chunk)]
+    if workers is None:
+        big = spec.nx * spec.ny >= PARALLEL_MIN_PIXELS and spec.observable != "energy"
+        workers = min(max(1, (os.cpu_count() or 2) - 1), len(chunks)) if big else 1
     out = np.full((spec.ny, spec.nx), np.nan)
     done = 0
     spec_d = spec.to_dict()

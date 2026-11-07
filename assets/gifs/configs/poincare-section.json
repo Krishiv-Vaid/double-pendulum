@@ -1,0 +1,59 @@
+{
+  "asset": "assets/gifs/poincare-section.gif",
+  "fps": 15,
+  "frames": 266,
+  "physical": "Physical(m1=1.0, m2=1.0, L1=1.0, L2=1.0, g=9.81, damping1=0.0, damping2=0.0, drive_amplitude=0.0, drive_frequency=0.0, drive_phase=0.0)",
+  "energy_J": -15.0,
+  "initials": [
+    [
+      0.0,
+      0.1,
+      3.792227691130562,
+      0.0
+    ],
+    [
+      0.0,
+      0.4,
+      3.6953495573718467,
+      0.0
+    ],
+    [
+      0.0,
+      0.8,
+      3.3844782195629053,
+      0.0
+    ],
+    [
+      0.0,
+      1.2,
+      2.8591483996841034,
+      0.0
+    ],
+    [
+      0.0,
+      1.6,
+      2.0817186856596064,
+      0.0
+    ],
+    [
+      0.0,
+      2.0,
+      0.7332117930533673,
+      0.0
+    ]
+  ],
+  "t_max": 300.0,
+  "focus": 4,
+  "method": "DOP853 1e-10",
+  "surface": "theta1 = 0 mod 2pi, omega1 > 0",
+  "stamp": {
+    "chaos_lab_version": "0.2.0",
+    "git_commit": "7d474ff",
+    "created_utc": "2026-11-07T01:50:53+00:00",
+    "python": "3.14.7",
+    "numpy": "2.5.4",
+    "scipy": "1.18.1",
+    "matplotlib": "3.11.2",
+    "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O"
+  }
+}

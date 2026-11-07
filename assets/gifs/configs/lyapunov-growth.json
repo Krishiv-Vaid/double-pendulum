@@ -1,0 +1,48 @@
+{
+  "asset": "assets/gifs/lyapunov-growth.gif",
+  "fps": 15,
+  "frames": 301,
+  "config": {
+    "physical": {
+      "m1": 1.0,
+      "m2": 1.0,
+      "L1": 1.0,
+      "L2": 1.0,
+      "g": 9.81,
+      "damping1": 0.0,
+      "damping2": 0.0,
+      "drive_amplitude": 0.0,
+      "drive_frequency": 0.0,
+      "drive_phase": 0.0
+    },
+    "initial": {
+      "theta1_deg": 120.0,
+      "theta2_deg": -10.0,
+      "omega1": 0.0,
+      "omega2": 0.0
+    },
+    "numerics": {
+      "method": "rk4",
+      "dt": 0.001,
+      "rtol": 1e-10,
+      "atol": 1e-10,
+      "t_max": 20.0,
+      "output_dt": 0.004166666666666667
+    },
+    "name": "Lyapunov"
+  },
+  "d0": 1e-08,
+  "lambda_finite_time": 1.0050127128418054,
+  "estimator": "tangent, renorm 0.1 s",
+  "note": "Finite-time estimate; not a universal constant.",
+  "stamp": {
+    "chaos_lab_version": "0.2.0",
+    "git_commit": "7d474ff",
+    "created_utc": "2026-11-07T01:52:18+00:00",
+    "python": "3.14.7",
+    "numpy": "2.5.4",
+    "scipy": "1.18.1",
+    "matplotlib": "3.11.2",
+    "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O"
+  }
+}

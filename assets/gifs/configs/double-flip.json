@@ -1,0 +1,87 @@
+{
+  "asset": "assets/gifs/double-flip.gif",
+  "fps": 10.0,
+  "frames": 101,
+  "config": {
+    "physical": {
+      "m1": 1.0,
+      "m2": 1.0,
+      "L1": 1.0,
+      "L2": 1.0,
+      "g": 9.81,
+      "damping1": 0.0,
+      "damping2": 0.0,
+      "drive_amplitude": 0.0,
+      "drive_frequency": 0.0,
+      "drive_phase": 0.0
+    },
+    "initial": {
+      "theta1_deg": 150.0,
+      "theta2_deg": 150.0,
+      "omega1": 0.0,
+      "omega2": 0.0
+    },
+    "numerics": {
+      "method": "rk4",
+      "dt": 0.001,
+      "rtol": 1e-10,
+      "atol": 1e-10,
+      "t_max": 10.0,
+      "output_dt": 0.004166666666666667
+    },
+    "name": "Double Flip"
+  },
+  "flip_events": [
+    {
+      "t": 1.8294399844705573,
+      "arm": 1,
+      "direction": -1
+    },
+    {
+      "t": 2.4980528021226722,
+      "arm": 2,
+      "direction": -1
+    },
+    {
+      "t": 3.012577127056578,
+      "arm": 1,
+      "direction": -1
+    },
+    {
+      "t": 4.141419812251032,
+      "arm": 2,
+      "direction": -1
+    },
+    {
+      "t": 4.974326313565906,
+      "arm": 2,
+      "direction": -1
+    },
+    {
+      "t": 6.385752868227413,
+      "arm": 1,
+      "direction": -1
+    },
+    {
+      "t": 7.582110170141334,
+      "arm": 2,
+      "direction": -1
+    },
+    {
+      "t": 8.470779375133874,
+      "arm": 1,
+      "direction": -1
+    }
+  ],
+  "playback_speed": 1.0,
+  "stamp": {
+    "chaos_lab_version": "0.2.0",
+    "git_commit": "7d474ff",
+    "created_utc": "2026-11-07T01:51:18+00:00",
+    "python": "3.14.7",
+    "numpy": "2.5.4",
+    "scipy": "1.18.1",
+    "matplotlib": "3.11.2",
+    "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O"
+  }
+}
