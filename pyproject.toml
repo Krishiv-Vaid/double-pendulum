@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chaos-lab"
+version = "0.2.0"
+description = "Chaos Lab Ultra — double pendulum physics, chaos analysis and generative visualization"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "Krishiv Vaid" }]
+dependencies = [
+    "numpy>=1.24",
+    "scipy>=1.10",
+    "matplotlib>=3.7",
+    "pillow>=10",
+]
+
+[project.optional-dependencies]
+video = ["imageio-ffmpeg>=0.4"]
+dev = ["pytest>=7", "ruff>=0.4", "imageio-ffmpeg>=0.4"]
+
+[project.scripts]
+chaos-lab = "chaos_lab.cli:main"
+
+[tool.setuptools]
+py-modules = ["double_pendulum"]
+
+[tool.setuptools.packages.find]
+include = ["chaos_lab*"]
+
+[tool.setuptools.package-data]
+chaos_lab = ["app/static/**/*", "app/static/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["slow: longer-running numerical tests"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+extend-exclude = [".venv"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+ignore = ["E731", "B905"]
+
+[tool.ruff.lint.per-file-ignores]
+# data tables of human-readable descriptions
+"chaos_lab/experiments/presets.py" = ["E501"]
+"chaos_lab/experiments/challenges.py" = ["E501"]
