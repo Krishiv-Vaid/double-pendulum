@@ -1,9 +1,9 @@
 import numpy as np
 import pytest
 
-from chaos_lab import Initial, Numerics, Physical, SimConfig, simulate
-from chaos_lab.analysis import events, linear, lyapunov, poincare, spectral
-from chaos_lab.core import physics
+from pendulum_sim import Initial, Numerics, Physical, SimConfig, simulate
+from pendulum_sim.analysis import events, linear, lyapunov, poincare, spectral
+from pendulum_sim.core import physics
 
 P = Physical()
 
@@ -41,7 +41,7 @@ def test_poincare_crossings_lie_on_section():
     s = poincare.section(P, [0.0, 0.5, 3.0, 0.0], t_max=60)
     assert len(s["t"]) > 5
     # re-integrate to each crossing time and check theta1 = 0 mod 2pi, omega1 > 0
-    from chaos_lab.core.integrators import integrate_adaptive
+    from pendulum_sim.core.integrators import integrate_adaptive
     out = integrate_adaptive(lambda t, y: physics.derivatives(t, y, P), [0.0, 0.5, 3.0, 0.0], s["t"][-1],
                              rtol=1e-11, atol=1e-11, t_eval=s["t"])
     assert np.max(np.abs(physics.wrap_angle(out.y[:, 0]))) < 1e-6

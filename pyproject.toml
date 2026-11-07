@@ -3,9 +3,9 @@ requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "chaos-lab"
+name = "pendulum-sim"
 version = "0.2.0"
-description = "Chaos Lab Ultra — double pendulum physics, chaos analysis and generative visualization"
+description = "Double Pendulum Simulator — double pendulum physics, chaos analysis and generative visualization"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
@@ -23,16 +23,16 @@ video = ["imageio-ffmpeg>=0.4"]
 dev = ["pytest>=7", "ruff>=0.4", "imageio-ffmpeg>=0.4"]
 
 [project.scripts]
-chaos-lab = "chaos_lab.cli:main"
+pendulum-sim = "pendulum_sim.cli:main"
 
 [tool.setuptools]
 py-modules = ["double_pendulum"]
 
 [tool.setuptools.packages.find]
-include = ["chaos_lab*"]
+include = ["pendulum_sim*"]
 
 [tool.setuptools.package-data]
-chaos_lab = ["app/static/**/*", "app/static/*"]
+pendulum_sim = ["app/static/**/*", "app/static/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -51,6 +51,6 @@ ignore = ["E731", "B905"]
 
 [tool.ruff.lint.per-file-ignores]
 # data tables of human-readable descriptions
-"chaos_lab/experiments/presets.py" = ["E501"]
-"chaos_lab/experiments/challenges.py" = ["E501"]
+"pendulum_sim/experiments/presets.py" = ["E501"]
+"pendulum_sim/experiments/challenges.py" = ["E501"]
 "scripts/build_gallery_docs.py" = ["E501"]

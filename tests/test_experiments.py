@@ -1,10 +1,10 @@
 import numpy as np
 import pytest
 
-from chaos_lab import Initial, Numerics, Physical, SimConfig, simulate
-from chaos_lab.analysis import events, lyapunov
-from chaos_lab.core import physics
-from chaos_lab.experiments import art, challenges, ensemble, integrator_lab, maps, presets, sweeps
+from pendulum_sim import Initial, Numerics, Physical, SimConfig, simulate
+from pendulum_sim.analysis import events, lyapunov
+from pendulum_sim.core import physics
+from pendulum_sim.experiments import art, challenges, ensemble, integrator_lab, maps, presets, sweeps
 
 
 # ---------------------------------------------------------------- butterfly

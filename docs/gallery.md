@@ -1,4 +1,4 @@
-# Chaos Lab Ultra — Demo Gallery
+# Double Pendulum Simulator — Demo Gallery
 
 Every animation here is rendered from an actual simulation. Exact parameters below are read from the sidecar file that produced each asset (`assets/gifs/configs/<name>.json`). Physical time labels show simulated seconds; playback speed is stated when it is not 1×.
 

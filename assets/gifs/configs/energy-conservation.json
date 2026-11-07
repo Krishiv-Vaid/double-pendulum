@@ -34,7 +34,7 @@
   "playback_speed": 1.0,
   "max_abs_rel_energy_error": 1.4069394940144267e-07,
   "stamp": {
-    "chaos_lab_version": "0.2.0",
+    "simulator_version": "0.2.0",
     "git_commit": "23b5318",
     "created_utc": "2026-11-07T07:08:57+00:00",
     "python": "3.14.7",

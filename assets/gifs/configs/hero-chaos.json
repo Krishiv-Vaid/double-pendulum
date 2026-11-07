@@ -34,7 +34,7 @@
   "playback_speed": 1.0,
   "notes": "Rainbow trail; glow is a rendering effect.",
   "stamp": {
-    "chaos_lab_version": "0.2.0",
+    "simulator_version": "0.2.0",
     "git_commit": "23b5318",
     "created_utc": "2026-11-07T07:08:36+00:00",
     "python": "3.14.7",

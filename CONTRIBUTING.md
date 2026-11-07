@@ -1,4 +1,4 @@
-# Contributing to Chaos Lab Ultra
+# Contributing to Double Pendulum Simulator
 
 Thanks for helping! The project has one non-negotiable rule: **scientific
 correctness comes before aesthetics.**
@@ -24,7 +24,7 @@ pytest -q && ruff check .
   must be labelled when they could be mistaken for dynamics.
 * **Time is physical.** Store simulated seconds; apply playback speed only when
   rendering, and label it whenever it is not 1×.
-* **No invented numbers.** Benchmarks come from `python -m chaos_lab bench`.
+* **No invented numbers.** Benchmarks come from `python -m pendulum_sim bench`.
   Gallery parameters come from sidecar files
   (`python scripts/build_gallery_docs.py`).
 * **Presets make claims; claims are tested.** If you add a preset with a
@@ -41,5 +41,5 @@ pytest -q && ruff check .
 python scripts/generate_gallery.py            # all GIFs + MP4 (~4 min)
 python scripts/generate_gallery.py --only hero-chaos
 python scripts/build_gallery_docs.py          # refresh docs/gallery.md
-python -m chaos_lab bench                     # refresh benchmarks/results.{json,md}
+python -m pendulum_sim bench                     # refresh benchmarks/results.{json,md}
 ```

@@ -325,7 +325,7 @@
   ],
   "note": "Each frame group is a separate simulation; the crossfade is a visual transition, not physical evolution.",
   "stamp": {
-    "chaos_lab_version": "0.2.0",
+    "simulator_version": "0.2.0",
     "git_commit": "23b5318",
     "created_utc": "2026-11-07T07:10:48+00:00",
     "python": "3.14.7",

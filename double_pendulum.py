@@ -1,7 +1,7 @@
 """Double pendulum simulation with RK4 integration and energy tracking.
 
-This is the original Chaos Lab entry point. It keeps its documented CLI and
-output, and now runs on the ``chaos_lab`` physics engine.
+This is the original Double Pendulum Simulator entry point. It keeps its documented CLI and
+output, and now runs on the ``pendulum_sim`` physics engine.
 
 State vector: y = [theta1, theta2, omega1, omega2], angles measured from the
 downward vertical. Equations of motion come from the Lagrangian
@@ -15,7 +15,7 @@ Usage:
     python double_pendulum.py --method dop853 # adaptive integrator
     python double_pendulum.py --style dark    # white on black
 
-For the full interactive lab run ``python -m chaos_lab serve``.
+For the full interactive lab run ``python -m pendulum_sim serve``.
 """
 
 import argparse
@@ -24,13 +24,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.animation import FuncAnimation
 
-from chaos_lab.core import physics
-from chaos_lab.core.config import Initial, Numerics, Physical, SimConfig
-from chaos_lab.core.integrators import rk4_step as _rk4_step
-from chaos_lab.core.simulation import simulate as _simulate
+from pendulum_sim.core import physics
+from pendulum_sim.core.config import Initial, Numerics, Physical, SimConfig
+from pendulum_sim.core.integrators import rk4_step as _rk4_step
+from pendulum_sim.core.simulation import simulate as _simulate
 
 # --------------------------------------------------------------------------
-# Backwards-compatible API (thin wrappers over chaos_lab)
+# Backwards-compatible API (thin wrappers over pendulum_sim)
 # --------------------------------------------------------------------------
 Params = Physical
 

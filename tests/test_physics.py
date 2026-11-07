@@ -3,9 +3,9 @@ import json
 import numpy as np
 import pytest
 
-from chaos_lab import Initial, Numerics, Physical, SimConfig, simulate
-from chaos_lab.core import nlink, physics, pivot
-from chaos_lab.core.integrators import integrate_adaptive
+from pendulum_sim import Initial, Numerics, Physical, SimConfig, simulate
+from pendulum_sim.core import nlink, physics, pivot
+from pendulum_sim.core.integrators import integrate_adaptive
 
 P = Physical()
 
@@ -293,7 +293,7 @@ def test_triple_pendulum_conserves_energy():
 @pytest.mark.parametrize("p", [Physical(), Physical(m1=2, m2=0.5, L1=0.7, L2=1.3, g=3.0, damping1=0.1, damping2=0.2,
                                                     drive_amplitude=0.8, drive_frequency=2.0, drive_phase=0.3)])
 def test_scalar_fast_path_matches_vectorized_rk4(p):
-    from chaos_lab.core.integrators import integrate_rk4, integrate_rk4_double_pendulum
+    from pendulum_sim.core.integrators import integrate_rk4, integrate_rk4_double_pendulum
 
     y0 = [2.0, -0.4, 0.3, 1.1]
     a = integrate_rk4_double_pendulum(p, y0, 3.0, 1e-3, output_every=10)

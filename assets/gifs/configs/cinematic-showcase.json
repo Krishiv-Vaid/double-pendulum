@@ -4,9 +4,9 @@
   "frames": 197,
   "note": "Montage of independent verified simulations.",
   "stamp": {
-    "chaos_lab_version": "0.2.0",
-    "git_commit": "23b5318",
-    "created_utc": "2026-11-07T07:10:53+00:00",
+    "simulator_version": "0.2.0",
+    "git_commit": "169c738",
+    "created_utc": "2026-11-07T07:32:31+00:00",
     "python": "3.14.7",
     "numpy": "2.5.4",
     "scipy": "1.18.1",
