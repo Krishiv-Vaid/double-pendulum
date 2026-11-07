@@ -5,7 +5,7 @@
 // Time passed to draw() is physical simulation time (s); positions between
 // stored samples are linearly interpolated for display only.
 
-import { paletteStops, rgba, sampler, token } from "./palettes.js";
+import { distinct, paletteStops, rgba, sampler, token } from "./palettes.js";
 import { lerpAt } from "./state.js";
 
 const TAU = Math.PI * 2;
@@ -199,7 +199,16 @@ export class PendulumRenderer {
     const s0 = this.bodies[0].s;
     const fi = Math.max(0, Math.min(s0.n - 1, t / s0.dt));
     this.updateCamera(fi, dtWall);
-    this.lightBg = v.background === "light" || (v.background === "theme" && document.documentElement.dataset.theme === "light");
+    const themeLight = document.documentElement.dataset.theme === "light";
+    const light = v.background === "white" || ((v.background === "theme" || v.background === "transparent") && themeLight);
+    if (light !== this.lightBg) this.expIdx = -1; // exposure layer must be repainted in the other ramp
+    this.lightBg = light;
+    // Trails resolve against the actual canvas background, so a white ramp is
+    // never drawn on white (and black never on black), including in exports.
+    this.pal = sampler(paletteStops(v.palette, null, light));
+    this.fg = light ? [0, 0, 0] : [255, 255, 255];
+    this.fg2 = light ? [74, 74, 74] : [176, 176, 176];
+    this.fg3 = light ? [143, 143, 143] : [107, 107, 107];
 
     if (v.render3d) return this.draw3D(t, fi, dtWall);
 
@@ -253,22 +262,9 @@ export class PendulumRenderer {
 
   paintBackground(ctx, W, H) {
     const bg = this.visual.background || "theme";
-    if (bg === "transparent" || bg === "theme") {
-      if (this.visual.motionBlur && this.prevT !== null && !this.reducedMotion) {
-        ctx.fillStyle = token("bg") || "#070910";
-        ctx.fillRect(0, 0, W, H);
-      }
-      return;
-    }
-    if (bg === "black") { ctx.fillStyle = "#000"; ctx.fillRect(0, 0, W, H); return; }
-    if (bg === "light") { ctx.fillStyle = "#f4f6fb"; ctx.fillRect(0, 0, W, H); return; }
-    const g = ctx.createRadialGradient(W / 2, H * 0.38, 0, W / 2, H * 0.45, Math.max(W, H) * 0.75);
-    if (bg === "gradient") {
-      g.addColorStop(0, "#1b1140"); g.addColorStop(0.55, "#0a0f24"); g.addColorStop(1, "#04050a");
-    } else { // space
-      g.addColorStop(0, "#0f1530"); g.addColorStop(0.6, "#070910"); g.addColorStop(1, "#030408");
-    }
-    ctx.fillStyle = g;
+    const fill = bg === "black" ? "#000" : bg === "white" ? "#fff" : (bg === "theme" ? (token("bg") || "#000") : null);
+    if (bg === "transparent" && !(this.visual.motionBlur && this.prevT !== null && !this.reducedMotion)) return;
+    ctx.fillStyle = fill || (this.lightBg ? "#fff" : "#000");
     ctx.fillRect(0, 0, W, H);
   }
 
@@ -276,7 +272,7 @@ export class PendulumRenderer {
     const sc = this.scale();
     const step = 0.5;
     ctx.save();
-    ctx.strokeStyle = this.lightBg ? "rgba(18,24,38,0.08)" : "rgba(149,163,186,0.09)";
+    ctx.strokeStyle = this.lightBg ? "#efefef" : "#161616";
     ctx.lineWidth = 1;
     const [wx0, wy1] = this.toWorld(0, 0), [wx1, wy0] = this.toWorld(this.W / this.dpr, this.H / this.dpr);
     ctx.beginPath();
@@ -285,7 +281,7 @@ export class PendulumRenderer {
     ctx.stroke();
     // scale bar: 1 m
     const x0 = this.W - 24 * this.dpr - sc, y0 = this.H - 22 * this.dpr;
-    ctx.strokeStyle = this.lightBg ? "#4b5870" : "#95a3ba";
+    ctx.strokeStyle = rgba(this.fg3);
     ctx.lineWidth = 2 * this.dpr;
     ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x0 + sc, y0); ctx.moveTo(x0, y0 - 4 * this.dpr); ctx.lineTo(x0, y0 + 4 * this.dpr);
     ctx.moveTo(x0 + sc, y0 - 4 * this.dpr); ctx.lineTo(x0 + sc, y0 + 4 * this.dpr); ctx.stroke();
@@ -361,11 +357,11 @@ export class PendulumRenderer {
       const gi = Math.min(g.n - 1, fi * (this.bodies[0].s.dt / g.dt));
       const tr = this.buildTrail(g, 2, 0, Math.floor(gi), gi, 2500);
       const a = new Float32Array(tr.n).fill(0.28), u = new Float32Array(tr.n).fill(0.5);
-      this.strokeRuns(ctx, tr.xs, tr.ys, u, a, tr.n, width * 0.8, this.lightBg ? [80, 90, 110] : [160, 170, 190]);
+      this.strokeRuns(ctx, tr.xs, tr.ys, u, a, tr.n, width * 0.8, this.fg3);
       // ghost pendulum outline
       ctx.save();
       ctx.globalCompositeOperation = "source-over";
-      ctx.strokeStyle = this.lightBg ? "rgba(18,24,38,.25)" : "rgba(244,247,255,.22)";
+      ctx.strokeStyle = rgba(this.fg3, 0.6);
       ctx.setLineDash([4 * this.dpr, 4 * this.dpr]);
       ctx.lineWidth = 1.5 * this.dpr;
       const [p0x, p0y] = this.toScreen(0, 0), [g1x, g1y] = this.toScreen(lerpAt(g.x1, gi), lerpAt(g.y1, gi)), [g2x, g2y] = this.toScreen(lerpAt(g.x2, gi), lerpAt(g.y2, gi));
@@ -399,7 +395,7 @@ export class PendulumRenderer {
           us[j] = u; as[j] = a;
         }
         let fixed = b.color || null;
-        if (mode === "lineart") fixed = this.lightBg ? [18, 24, 38] : [244, 247, 255];
+        if (mode === "lineart") fixed = this.fg;
         const w = mode === "lineart" ? Math.max(0.8, width * 0.45) : width;
         this.strokeRuns(ctx, tr.xs, tr.ys, us, as, tr.n, w, fixed, mode === "fade" || mode === "particles" || mode === "ghost");
       }
@@ -432,7 +428,7 @@ export class PendulumRenderer {
 
   /** Bloom: blur by downsampling (1/4 and 1/8 scale) and add back. */
   composite(ctx, layer, glow) {
-    const g = Math.max(0, glow || 0) * (this.visual.bloom ?? 1);
+    const g = Math.min(0.25, Math.max(0, glow || 0)) * (this.visual.bloom ?? 1); // faint grey bloom only
     if (g > 0.01 && !this.lightBg) {
       const c1 = this.b1.getContext("2d"), c2 = this.b2.getContext("2d");
       c1.clearRect(0, 0, this.b1.width, this.b1.height);
@@ -483,58 +479,33 @@ export class PendulumRenderer {
     const [px, py] = this.toScreen(0, 0), [ax, ay] = this.toScreen(x1, y1), [bx, by] = this.toScreen(x2, y2);
     const dpr = this.dpr;
     const sc = this.scale();
-    const light = this.lightBg;
-    const rodCol = v.rodColor || (light ? "#1b2333" : "#f4f7ff");
     ctx.save();
     if (v.rods !== false) {
       ctx.lineCap = "round"; ctx.lineJoin = "round";
-      if (many) {
-        const c = b.color || [244, 247, 255];
-        ctx.strokeStyle = rgba(c, light ? 0.55 : 0.5);
-        ctx.lineWidth = 1.2 * dpr;
-      } else {
-        if (!light && v.glow > 0) { ctx.shadowColor = "rgba(160,200,255,0.55)"; ctx.shadowBlur = 10 * dpr * v.glow; }
-        ctx.strokeStyle = rodCol;
-        ctx.lineWidth = Math.max(2, 0.022 * sc);
-      }
+      ctx.strokeStyle = many ? rgba(b.color || this.fg2, 0.45) : rgba(this.fg2);
+      ctx.lineWidth = many ? 1 * dpr : Math.max(1.5 * dpr, 0.012 * sc);
       ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
-      ctx.shadowBlur = 0;
     }
-    const base = Math.max(4 * dpr, 0.055 * sc) * (v.massSize || 1);
-    const r1 = many ? 2.2 * dpr : base * Math.cbrt(p.m1), r2 = many ? 2.6 * dpr : base * Math.cbrt(p.m2);
-    const c1 = many ? (b.color || this.pal(0.2)) : this.massColor(0), c2 = many ? (b.color || this.pal(0.9)) : this.massColor(1);
-    this.drawMass(ctx, ax, ay, r1, c1, !many && v.massGlow !== false);
-    this.drawMass(ctx, bx, by, r2, c2, !many && v.massGlow !== false);
+    const base = Math.max(3.5 * dpr, 0.045 * sc) * (v.massSize || 1);
+    const r1 = many ? 2 * dpr : base * Math.cbrt(p.m1), r2 = many ? 2.4 * dpr : base * Math.cbrt(p.m2);
+    const col = many ? (b.color || this.fg) : this.fg;
+    this.drawMass(ctx, ax, ay, r1, col);
+    this.drawMass(ctx, bx, by, r2, col);
     if (k === 0) {
       if (v.showPivot !== false) {
-        ctx.fillStyle = light ? "#4b5870" : "#95a3ba";
-        ctx.beginPath(); ctx.arc(px, py, 3.2 * dpr, 0, TAU); ctx.fill();
-        ctx.strokeStyle = light ? "rgba(18,24,38,.25)" : "rgba(244,247,255,.25)"; ctx.lineWidth = 1 * dpr;
-        ctx.beginPath(); ctx.arc(px, py, 7 * dpr, 0, TAU); ctx.stroke();
+        ctx.fillStyle = rgba(this.fg3);
+        ctx.beginPath(); ctx.arc(px, py, 2.5 * dpr, 0, TAU); ctx.fill();
       }
       this.screen = { pivot: [px, py], bob1: [ax, ay], bob2: [bx, by] };
     }
     ctx.restore();
   }
 
-  massColor(i) {
-    const mode = this.visual.palette;
-    if (mode === "mono") return [244, 247, 255];
-    return this.pal(i === 0 ? 0.12 : 0.88);
-  }
+  massColor() { return this.fg; }
 
-  drawMass(ctx, x, y, r, col, glow) {
-    if (glow && !this.lightBg) {
-      const g = ctx.createRadialGradient(x, y, 0, x, y, r * 4.2);
-      g.addColorStop(0, rgba(col, 0.55)); g.addColorStop(0.4, rgba(col, 0.16)); g.addColorStop(1, rgba(col, 0));
-      ctx.fillStyle = g;
-      ctx.globalCompositeOperation = "lighter";
-      ctx.beginPath(); ctx.arc(x, y, r * 4.2, 0, TAU); ctx.fill();
-      ctx.globalCompositeOperation = "source-over";
-    }
-    const g2 = ctx.createRadialGradient(x - r * 0.35, y - r * 0.35, r * 0.1, x, y, r);
-    g2.addColorStop(0, "rgba(255,255,255,0.95)"); g2.addColorStop(0.35, rgba(col, 1)); g2.addColorStop(1, rgba(col.map((c) => c * 0.55), 1));
-    ctx.fillStyle = g2;
+  /** Solid bob: flat fill, no specular highlight, no halo. */
+  drawMass(ctx, x, y, r, col) {
+    ctx.fillStyle = rgba(col, 1);
     ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
   }
 
@@ -545,7 +516,7 @@ export class PendulumRenderer {
     const vx = which === "velocity" ? lerpAt(s.vx2, fi) * 0.12 : lerpAt(s.ax2, fi) * 0.012;
     const vy = which === "velocity" ? lerpAt(s.vy2, fi) * 0.12 : lerpAt(s.ay2, fi) * 0.012;
     const [a, b] = this.toScreen(x2, y2), [c, d] = this.toScreen(x2 + vx, y2 + vy);
-    const col = which === "velocity" ? token("green") || "#39ff88" : token("gold") || "#ffd166";
+    const col = rgba(which === "velocity" ? this.fg : this.fg2);
     arrow(ctx, a, b, c, d, col, 2 * this.dpr);
     ctx.fillStyle = col;
     ctx.font = `${11 * this.dpr}px ui-monospace, monospace`;
@@ -561,13 +532,13 @@ export class PendulumRenderer {
     this.comTrail.push([cx, cy]);
     if (this.comTrail.length > 240) this.comTrail.shift();
     ctx.save();
-    ctx.strokeStyle = rgba([255, 209, 102], 0.5);
+    ctx.strokeStyle = rgba(this.fg2, 0.5);
     ctx.lineWidth = 1.2 * this.dpr;
     ctx.beginPath();
     this.comTrail.forEach(([x, y], i) => { const [a, b] = this.toScreen(x, y); i ? ctx.lineTo(a, b) : ctx.moveTo(a, b); });
     ctx.stroke();
     const [a, b] = this.toScreen(cx, cy);
-    ctx.strokeStyle = "#ffd166"; ctx.lineWidth = 1.5 * this.dpr;
+    ctx.strokeStyle = rgba(this.fg2); ctx.lineWidth = 1.5 * this.dpr;
     ctx.beginPath(); ctx.arc(a, b, 5 * this.dpr, 0, TAU); ctx.moveTo(a - 8 * this.dpr, b); ctx.lineTo(a + 8 * this.dpr, b); ctx.moveTo(a, b - 8 * this.dpr); ctx.lineTo(a, b + 8 * this.dpr); ctx.stroke();
     ctx.restore();
   }
@@ -692,7 +663,7 @@ export class PendulumRenderer {
     ctx.save();
     for (const [u, v, s, ph] of this.stars) {
       const a = 0.25 + 0.35 * (0.5 + 0.5 * Math.sin(t * 1.3 + ph));
-      ctx.fillStyle = this.lightBg ? `rgba(18,24,38,${a * 0.5})` : `rgba(220,230,255,${a})`;
+      ctx.fillStyle = this.lightBg ? `rgba(0,0,0,${a * 0.5})` : `rgba(255,255,255,${a})`;
       ctx.fillRect(u * this.W, v * this.H, s * this.dpr, s * this.dpr);
     }
     ctx.restore();
@@ -718,7 +689,7 @@ export class PendulumRenderer {
     const R = this.R, floorY = -R - 0.25;
     // floor grid
     ctx.save();
-    ctx.strokeStyle = this.lightBg ? "rgba(18,24,38,.10)" : "rgba(149,163,186,.12)";
+    ctx.strokeStyle = this.lightBg ? "#efefef" : "#161616";
     ctx.lineWidth = 1;
     const ext = R * 1.6, st = R / 4;
     ctx.beginPath();
@@ -731,7 +702,7 @@ export class PendulumRenderer {
     ctx.stroke();
     // support frame
     const [sx0, sy0] = this.project(0, 0, -0.3 * R), [sx1, sy1] = this.project(0, 0, 0.3 * R);
-    ctx.strokeStyle = this.lightBg ? "#7b879c" : "#3a4560"; ctx.lineWidth = 4 * dpr;
+    ctx.strokeStyle = rgba(this.fg3); ctx.lineWidth = 3 * dpr;
     ctx.beginPath(); ctx.moveTo(sx0, sy0); ctx.lineTo(sx1, sy1); ctx.stroke();
     ctx.restore();
 
@@ -774,17 +745,17 @@ export class PendulumRenderer {
     const P0 = this.project(0, 0, 0), P1 = this.project(x1, y1, 0), P2 = this.project(x2, y2, 0);
     const rod = (A, B) => {
       const g = ctx.createLinearGradient(A[0] - 6, A[1], A[0] + 6, A[1]);
-      g.addColorStop(0, "#9aa6bf"); g.addColorStop(0.5, "#ffffff"); g.addColorStop(1, "#6b7690");
-      ctx.strokeStyle = g; ctx.lineWidth = Math.max(3, 0.03 * A[2] * R); ctx.lineCap = "round";
+      void g;
+      ctx.strokeStyle = rgba(this.fg2); ctx.lineWidth = Math.max(2, 0.02 * A[2] * R); ctx.lineCap = "round";
       ctx.beginPath(); ctx.moveTo(A[0], A[1]); ctx.lineTo(B[0], B[1]); ctx.stroke();
     };
     rod(P0, P1); rod(P1, P2);
     const p = s.p || s.config.physical;
-    this.drawMass(ctx, P1[0], P1[1], 0.07 * P1[2] * Math.cbrt(p.m1) * (v.massSize || 1), this.massColor(0), v.massGlow !== false);
-    this.drawMass(ctx, P2[0], P2[1], 0.07 * P2[2] * Math.cbrt(p.m2) * (v.massSize || 1), this.massColor(1), v.massGlow !== false);
+    this.drawMass(ctx, P1[0], P1[1], 0.07 * P1[2] * Math.cbrt(p.m1) * (v.massSize || 1), this.fg);
+    this.drawMass(ctx, P2[0], P2[1], 0.07 * P2[2] * Math.cbrt(p.m2) * (v.massSize || 1), this.fg);
     this.screen = { pivot: P0, bob1: P1, bob2: P2 };
     if (this.label3d) {
-      ctx.fillStyle = this.lightBg ? "rgba(18,24,38,.55)" : "rgba(149,163,186,.8)";
+      ctx.fillStyle = rgba(this.fg3);
       ctx.font = `${11 * dpr}px system-ui, -apple-system, sans-serif`;
       ctx.textAlign = "right";
       ctx.fillText("3D presentation of planar motion — the physics stays 2D", W - 14 * dpr, H - 14 * dpr);

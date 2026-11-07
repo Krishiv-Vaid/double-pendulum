@@ -2,20 +2,20 @@
 
 import { api, decodeF32, download, runJob } from "../api.js";
 import { Heatmap } from "../charts.js";
-import { COLORMAPS } from "../palettes.js";
+import { nanRGB, token } from "../palettes.js";
 import { cloneDeep, setConfig, state } from "../state.js";
 import { btn, check, fmt, fmtSig, h, panel, progressBar, section, select, slider, toast } from "../ui.js";
 
 export const meta = { id: "fractal" };
 
 const OBS = {
-  first_flip: { label: "First-flip time", unit: "s", nan: "no flip within T (or energetically impossible)", cmap: "magma", log: true,
-    def: "Time until either arm first passes over the top (unwrapped angle crosses ±π). Black: no flip before T." },
-  rotations: { label: "Rotation count", unit: "flips", nan: "—", cmap: "turbo", log: false, def: "Total over-the-top crossings of both arms during T." },
-  max_omega: { label: "Max angular velocity", unit: "rad/s", nan: "—", cmap: "inferno", log: false, def: "max over [0,T] of max(|ω₁|, |ω₂|)." },
-  sensitivity: { label: "Finite-time sensitivity", unit: "1/s", nan: "—", cmap: "viridis", log: false,
+  first_flip: { label: "First-flip time", unit: "s", nan: "no flip within T (or energetically impossible)", cmap: "auto", log: true,
+    def: "Time until either arm first passes over the top (unwrapped angle crosses ±π). Background-coloured pixels: no flip before T." },
+  rotations: { label: "Rotation count", unit: "flips", nan: "—", cmap: "auto", log: false, def: "Total over-the-top crossings of both arms during T." },
+  max_omega: { label: "Max angular velocity", unit: "rad/s", nan: "—", cmap: "auto", log: false, def: "max over [0,T] of max(|ω₁|, |ω₂|)." },
+  sensitivity: { label: "Finite-time sensitivity", unit: "1/s", nan: "—", cmap: "auto", log: false,
     def: "ln(d(T)/d₀)/T between the pixel and a twin displaced by d₀ in θ₁ (wrapped dimensionless norm). Saturates once separations become O(1): read it as an index, not a Lyapunov exponent." },
-  energy: { label: "Initial energy", unit: "J", nan: "—", cmap: "cividis", log: false, def: "Exact total energy of the initial condition (no integration)." },
+  energy: { label: "Initial energy", unit: "J", nan: "—", cmap: "auto", log: false, def: "Exact total energy of the initial condition (no integration)." },
 };
 
 let BOOKMARKS_KEY = "cl.fractalBookmarks";
@@ -30,7 +30,7 @@ export function mount(root) {
     w2: slider({ label: "ω₂(0) for all pixels", unit: "rad/s", min: -10, max: 10, step: 0.1, value: 0, digits: 2 }),
   };
   let progressive = true;
-  const cmap = select({ label: "Colormap", value: "magma", options: Object.keys(COLORMAPS), onChange: () => repaint() });
+  const cmap = select({ label: "Greyscale ramp", value: "auto", options: [["auto", "Theme (fg₄ → fg)"], ["gray-full", "Black → white"], ["gray-light", "White → black"]], onChange: () => repaint() });
   const logScale = check("Log colour scale", true, () => repaint());
   logScale.set(true);
   const inv = check("Invert colormap", false, () => repaint());
@@ -132,13 +132,13 @@ export function mount(root) {
     const o = OBS[S.obs.get()];
     hm.set(data, nx, ny, view[0], view[1], { cmap: cmap.get(), log: logScale.querySelector("input").checked, invert: inv.querySelector("input").checked,
       clip: clip.get(), unit: `${o.label} [${o.unit}]${logScale.querySelector("input").checked ? " (log)" : ""}`, vname: o.label, nanLabel: o.nan,
-      nanColor: S.obs.get() === "first_flip" ? [0, 0, 0] : [12, 15, 26] });
+      nanColor: nanRGB() });
   }
   function repaint() { if (last) paint(last.data, last.nx, last.ny); }
 
   function showPick(x, y, v) {
     const o = OBS[S.obs.get()];
-    hm.overlay = [{ type: "cross", x, y, color: "#fff" }];
+    hm.overlay = [{ type: "cross", x, y, color: token("fg") }];
     hm.draw();
     pick.innerHTML = "";
     pick.append(h("dl", { class: "kv" },
@@ -232,14 +232,14 @@ export function mount(root) {
     tmp.style.cssText = `position:fixed;left:-9999px;width:${size}px;height:${size}px`;
     document.body.append(tmp);
     const off = new Heatmap(tmp, { square: true });
-    off.set(data, nx, ny, xr, yr, { cmap: cmap.get(), log: logScale.querySelector("input").checked, invert: inv.querySelector("input").checked, clip: clip.get(), nanColor: [0, 0, 0] });
+    off.set(data, nx, ny, xr, yr, { cmap: cmap.get() === "auto" ? "gray" : cmap.get(), log: logScale.querySelector("input").checked, invert: inv.querySelector("input").checked, clip: clip.get(), nanColor: [0, 0, 0] });
     const c = document.createElement("canvas");
     c.width = size; c.height = size;
     const ctx = c.getContext("2d");
     ctx.imageSmoothingEnabled = false;
     ctx.drawImage(off.img, 0, 0, size, size);
-    ctx.fillStyle = "rgba(7,9,16,.7)"; ctx.fillRect(0, size - 26, size, 26);
-    ctx.fillStyle = "#f4f7ff"; ctx.font = "13px ui-monospace, monospace";
+    ctx.fillStyle = "rgba(0,0,0,.75)"; ctx.fillRect(0, size - 26, size, 26);
+    ctx.fillStyle = "#ffffff"; ctx.font = "13px ui-monospace, monospace";
     ctx.fillText(`${OBS[S.obs.get()].label} · zoom ${fmtSig(z, 3)}× · θ₁ ${fmt((xr[0] + xr[1]) / 2, 3)}°, θ₂ ${fmt((yr[0] + yr[1]) / 2, 3)}°`, 10, size - 9);
     off.destroy(); tmp.remove();
     return c;

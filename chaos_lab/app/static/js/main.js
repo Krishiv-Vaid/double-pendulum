@@ -107,10 +107,11 @@ function toggleSaver() {
   clearInterval(saverTimer);
   if (on) {
     if (current !== "playground") navigate("playground");
-    setVisual({ hud: false, glow: Math.max(state.visual.glow, 1), trail: state.visual.trail === "lineart" ? "fade" : state.visual.trail });
+    setVisual({ hud: false, trail: state.visual.trail === "lineart" ? "fade" : state.visual.trail });
     setPlaying(true);
     document.documentElement.requestFullscreen?.().catch(() => {});
-    const art = state.presets.filter((p) => ["classic", "rainbow_chaos", "neon_plasma", "long_exposure", "double_flip", "near_inverted", "high_energy", "unequal_lengths"].includes(p.id));
+    // Cycle through single-pendulum presets (no hardcoded ids: presets are data).
+    const art = state.presets.filter((p) => ["playground", "studio"].includes(p.mode) && !p.config.physical.damping1 && !p.config.physical.drive_amplitude);
     let k = 0;
     saverTimer = setInterval(() => { if (art.length) { applyPreset(art[k++ % art.length]); setPlaying(true); } }, 25000);
     toast("Screensaver — press Esc to exit");

@@ -2,6 +2,8 @@
 // (browser only), and a shared playback clock. Three kinds of state are kept
 // strictly apart so that a colour change never triggers an integration.
 
+import { PALETTES } from "./palettes.js";
+
 export const DEFAULT_CONFIG = {
   name: "Classic Double Pendulum",
   physical: { m1: 1, m2: 1, L1: 1, L2: 1, g: 9.81, damping1: 0, damping2: 0, drive_amplitude: 0, drive_frequency: 0, drive_phase: 0 },
@@ -10,19 +12,16 @@ export const DEFAULT_CONFIG = {
 };
 
 export const DEFAULT_VISUAL = {
-  palette: "rainbow",
-  custom: ["#00e5ff", "#a855f7", "#ff3cac"],
+  palette: "auto", // auto | white | silver | black | gray
   trail: "fade", // full | fade | exposure | velocity | acceleration | energy | time | dashed | dual | lineart | ghost | particles
   trailSeconds: 3,
-  trailWidth: 2.2,
-  glow: 0.85,
+  trailWidth: 1.6,
+  glow: 0, // at most MAX_GLOW: a faint grey bloom, never a coloured halo
   bloom: 1,
   rods: true,
-  rodColor: "",
-  massGlow: true,
   massSize: 1,
   showPivot: true,
-  background: "theme", // theme | space | black | transparent | light | gradient
+  background: "theme", // theme | black | white | transparent
   particles: "none", // none | sparks | dust | comet | burst | confetti | stars | smoke
   particleRate: 1,
   particleLife: 1.2,
@@ -39,6 +38,22 @@ export const DEFAULT_VISUAL = {
   com: false,
   render3d: false,
 };
+
+export const MAX_GLOW = 0.25;
+export const BACKGROUNDS = ["theme", "black", "white", "transparent"];
+
+/** Coerce any visual settings (old localStorage, share links, presets, saved
+ *  experiments) into the monochrome design: unknown palettes fall back to the
+ *  theme ramp and glow is capped. */
+export function monochrome(v) {
+  const out = { ...v };
+  if (!(out.palette in PALETTES)) out.palette = out.palette === "gray" ? "gray" : "auto";
+  if (typeof out.glow === "number") out.glow = Math.min(MAX_GLOW, Math.max(0, out.glow));
+  if (out.background === "light") out.background = "white";
+  if (!BACKGROUNDS.includes(out.background)) out.background = "theme";
+  delete out.custom; delete out.massGlow; delete out.rodColor;
+  return out;
+}
 
 export const DEFAULT_PREFS = { sound: false, volume: 0.4 };
 
@@ -62,7 +77,7 @@ export const bus = new Emitter();
 
 export const state = {
   config: clone(DEFAULT_CONFIG),
-  visual: load("cl.visual", DEFAULT_VISUAL),
+  visual: monochrome(load("cl.visual", DEFAULT_VISUAL)),
   prefs: load("cl.prefs", DEFAULT_PREFS),
   sim: null, // last simulation result (typed arrays)
   ghost: null, // previous simulation for ghost trails
@@ -92,7 +107,7 @@ export function mergeConfig(cfg) {
 }
 
 export function setVisual(patch) {
-  Object.assign(state.visual, patch);
+  Object.assign(state.visual, monochrome({ ...state.visual, ...patch }));
   save("cl.visual", state.visual);
   bus.emit("visual", state.visual, patch);
 }
@@ -179,11 +194,12 @@ export function decodeShare(hash) {
 }
 
 function pickVisual(v) {
-  const keys = ["palette", "custom", "trail", "trailSeconds", "trailWidth", "glow", "particles", "camera", "background"];
+  const keys = ["palette", "trail", "trailSeconds", "trailWidth", "glow", "particles", "camera", "background"];
   return Object.fromEntries(keys.map((k) => [k, v[k]]));
 }
 
 export function sanitizeVisual(v) {
+  v = monochrome(v || {});
   const out = {};
   for (const [k, val] of Object.entries(v)) {
     if (!(k in DEFAULT_VISUAL)) continue;

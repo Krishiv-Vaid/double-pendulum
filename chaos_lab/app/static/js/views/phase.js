@@ -2,7 +2,7 @@
 
 import { api, decodeBits, download, runJob } from "../api.js";
 import { LineChart, Plot3D, Scatter } from "../charts.js";
-import { paletteStops, rgba, sampler, token } from "../palettes.js";
+import { distinct, paletteStops, rgba, sampler, token } from "../palettes.js";
 import { jumpTo, runSimulation, setPlaying } from "../sim.js";
 import { bus, clock, state } from "../state.js";
 import { btn, check, fmt, fmtSig, h, panel, progressBar, select, slider, toast } from "../ui.js";
@@ -72,14 +72,14 @@ function portraits(root) {
   function groupsFor(x, y, head) {
     // colour by time: split into 24 chunks with a palette gradient
     const s = state.sim, n = x.length;
-    const pal = sampler(paletteStops(state.visual.palette, state.visual.custom));
+    const pal = sampler(paletteStops(state.visual.palette));
     if (!colorTime) return [{ x, y, color: token("cyan"), alpha: 0.7, head, headColor: token("text") }];
     const k = 24, out = [];
     for (let c = 0; c < k; c++) {
       const a = Math.floor((c * n) / k), b = Math.floor(((c + 1) * n) / k);
       out.push({ x: x.subarray(a, b), y: y.subarray(a, b), color: rgba(pal(c / (k - 1)), 1), alpha: 0.7 });
     }
-    out.push({ x: new Float64Array([x[head]]), y: new Float64Array([y[head]]), color: "#fff", head: 0, headColor: token("text") });
+    out.push({ x: new Float64Array([x[head]]), y: new Float64Array([y[head]]), color: token("fg"), head: 0, headColor: token("fg") });
     void s;
     return out;
   }
@@ -97,7 +97,7 @@ function portraits(root) {
     cTV.set([{ x: s.t, y: s.T, color: token("cyan"), label: "T" }, { x: s.t, y: s.V, color: token("pink"), label: "V" }]);
     cA.set([{ x: s.t, y: s.a1, color: token("cyan"), label: "α₁" }, { x: s.t, y: s.a2, color: token("purple"), label: "α₂" }]);
     cV.set([{ x: s.t, y: s.speed2, color: token("green"), label: "|v₂|" }]);
-    const pal = sampler(paletteStops(state.visual.palette, state.visual.custom));
+    const pal = sampler(paletteStops(state.visual.palette));
     const pick = { t1: th1, t2: th2, w1: s.w1, w2: s.w2 };
     const keys = { t1t2w2: ["t1", "t2", "w2"], t1w1w2: ["t1", "w1", "w2"], t1t2w1: ["t1", "t2", "w1"], t2w1w2: ["t2", "w1", "w2"] }[axes.get()];
     const lab = { t1: "θ₁", t2: "θ₂", w1: "ω₁", w2: "ω₂" };
@@ -193,9 +193,9 @@ function poincare(root) {
     runBtn.disabled = false; cancelBtn.disabled = true;
   }
   function show(r) {
-    const pal = sampler(paletteStops(state.visual.palette === "mono" ? "rainbow" : state.visual.palette, state.visual.custom));
     const n = r.sections.length;
-    const groups = r.sections.map((s, k) => ({ x: s.theta2.map((v) => v ?? NaN), y: s.omega2.map((v) => v ?? NaN), color: density ? token("cyan") : rgba(pal(n === 1 ? 0.5 : k / (n - 1))), alpha: density ? 0.25 : 0.85 }));
+    const tones = distinct(n);
+    const groups = r.sections.map((s, k) => ({ x: s.theta2.map((v) => v ?? NaN), y: s.omega2.map((v) => v ?? NaN), color: density ? token("fg") : rgba(tones[k]), alpha: density ? 0.25 : 0.9 }));
     sc.set(groups);
     legend.innerHTML = "";
     r.sections.forEach((s, k) => legend.append(h("li", {}, h("button", { type: "button" },
@@ -229,7 +229,8 @@ function spectra(root) {
       const n = r.recurrence.n, bits = decodeBits(r.recurrence.bits, n);
       rc.width = n; rc.height = n;
       const ctx = rc.getContext("2d"), im = ctx.createImageData(n, n);
-      const on = [0, 229, 255], off = document.documentElement.dataset.theme === "light" ? [255, 255, 255] : [7, 9, 16];
+      const light = document.documentElement.dataset.theme === "light";
+      const on = light ? [0, 0, 0] : [255, 255, 255], off = light ? [255, 255, 255] : [0, 0, 0];
       for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
         const c = bits[(n - 1 - i) * n + j] ? on : off, o = (i * n + j) * 4;
         im.data[o] = c[0]; im.data[o + 1] = c[1]; im.data[o + 2] = c[2]; im.data[o + 3] = 255;

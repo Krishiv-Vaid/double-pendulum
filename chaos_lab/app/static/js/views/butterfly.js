@@ -3,7 +3,7 @@
 import { runJob } from "../api.js";
 import { LineChart } from "../charts.js";
 import { LocalClock, configControls, miniTransport, paletteGrid } from "../controls.js";
-import { paletteStops, sampler, token } from "../palettes.js";
+import { distinct, token } from "../palettes.js";
 import { PendulumRenderer } from "../renderer.js";
 import { addPositions, bus, state, setVisual } from "../state.js";
 import { btn, fmt, fmtSig, h, panel, progressBar, section, select, slider, toast } from "../ui.js";
@@ -91,10 +91,10 @@ export function mount(root) {
     layoutStage();
     // charts
     const n = r.log10_separation.length;
-    const pal = sampler(paletteStops(state.visual.palette, state.visual.custom));
-    const series = r.log10_separation.slice(0, 60).map((y, k) => ({ x: t, y: nul(y), color: `rgb(${pal((k + 1) / n).join(",")})`, alpha: 0.35, width: 1 }));
+    const tones = distinct(Math.min(n, 60));
+    const series = r.log10_separation.slice(0, 60).map((y, k) => ({ x: t, y: nul(y), color: `rgb(${tones[k].join(",")})`, alpha: 0.3, width: 1 }));
     series.push({ x: t, y: nul(r.median_log10_separation), color: token("text"), width: 2.2, label: "median" });
-    if (r.numerical_control_log10) series.push({ x: t, y: nul(r.numerical_control_log10), color: token("text-3"), dash: [5, 4], width: 1.5, label: "numerical control (Δt vs Δt/2)" });
+    if (r.numerical_control_log10) series.push({ x: t, y: nul(r.numerical_control_log10), color: token("fg-2"), dash: [5, 4], width: 1.5, label: "numerical control (Δt vs Δt/2)" });
     chSep.set(series);
     chSep.setHLines([{ y: Math.log10(r.threshold), color: token("gold"), label: `threshold ${r.threshold}` }]);
     const firstDiv = r.stats.min_divergence_time;
@@ -119,12 +119,11 @@ export function mount(root) {
   const nul = (a) => Float64Array.from(a, (v) => (v === null ? NaN : v));
 
   function colors(n) {
-    const pal = sampler(paletteStops(state.visual.palette, state.visual.custom));
-    return Array.from({ length: n }, (_, k) => pal(n === 1 ? 0.5 : k / (n - 1)));
+    return distinct(n);
   }
 
   function applyVisual() {
-    const v = { ...state.visual, trail: view.get() === "cloud" ? "fade" : "fade", trailSeconds: view.get() === "cloud" ? 0.15 : trail.get(), glow: Math.min(state.visual.glow, 0.9), particles: "none", camera: "static", render3d: false };
+    const v = { ...state.visual, trail: "fade", trailSeconds: view.get() === "cloud" ? 0.15 : trail.get(), particles: "none", camera: "static", render3d: false };
     renderers.forEach((r, k) => { r.setVisual(view.get() === "grid" ? { ...v, trailSeconds: trail.get() } : v); });
     if (data && view.get() !== "grid") renderers[0] && renderers[0].setBodies(data.sims, colors(data.sims.length));
   }

@@ -20,7 +20,7 @@ export const PARTICLES = [
   ["confetti", "Confetti"], ["stars", "Starfield"], ["smoke", "Smoke"],
 ];
 
-export const BACKGROUNDS = [["theme", "Theme"], ["space", "Deep space"], ["black", "Black"], ["gradient", "Nebula"], ["light", "Light paper"], ["transparent", "Transparent"]];
+export const BACKGROUNDS = [["theme", "Theme"], ["black", "Black"], ["white", "White"], ["transparent", "Transparent"]];
 
 function commit(mutator) {
   const c = cloneDeep(state.config);
@@ -91,7 +91,7 @@ export function paletteGrid(onPick) {
   const grid = h("div", { class: "palette-grid" });
   const btns = Object.entries(PALETTES).map(([k, p]) => {
     const b = h("button", { type: "button", "aria-pressed": String(state.visual.palette === k), title: p.label },
-      h("span", { class: "swatch", style: { background: cssGradient(paletteStops(k, state.visual.custom)) } }), p.label.replace(/ \(.+\)/, ""));
+      h("span", { class: "swatch", style: { background: cssGradient(paletteStops(k)), border: "1px solid var(--border)" } }), p.label);
     b.addEventListener("click", () => {
       btns.forEach((x) => x.setAttribute("aria-pressed", "false"));
       b.setAttribute("aria-pressed", "true");
@@ -109,18 +109,12 @@ export function visualControls({ full = false, open = [] } = {}) {
   const v = state.visual;
   const V = (key, o) => slider({ ...o, value: v[key], onInput: (x) => setVisual({ [key]: x }) });
   const parts = [];
-  const custom = h("div", { class: "btn-row" }, h("span", { class: "faint", style: { fontSize: "12px" } }, "Custom stops"),
-    ...v.custom.map((col, i) => {
-      const inp = h("input", { type: "color", value: col, "aria-label": `custom colour ${i + 1}` });
-      inp.addEventListener("input", () => { const c = [...state.visual.custom]; c[i] = inp.value; setVisual({ custom: c, palette: "custom" }); });
-      return inp;
-    }));
   parts.push(section("Palette & trail", open.includes("palette") || !full,
-    paletteGrid(), custom,
+    paletteGrid(),
     select({ label: "Trail mode", value: v.trail, options: TRAIL_MODES, onChange: (x) => setVisual({ trail: x }) }),
     V("trailSeconds", { label: "Trail length", unit: "s", min: 0.1, max: 30, step: 0.1, digits: 1 }),
     V("trailWidth", { label: "Trail width", unit: "px", min: 0.5, max: 8, step: 0.1, digits: 1 }),
-    V("glow", { label: "Glow", min: 0, max: 2, step: 0.01, digits: 2, tip: "Bloom is a rendering effect only" }),
+    V("glow", { label: "Bloom", min: 0, max: 0.25, step: 0.01, digits: 2, tip: "A faint grey bloom; a rendering effect only" }),
   ));
   if (full) {
     parts.push(section("Particles", open.includes("particles"),
@@ -141,7 +135,6 @@ export function visualControls({ full = false, open = [] } = {}) {
       select({ label: "Background", value: v.background, options: BACKGROUNDS, onChange: (x) => setVisual({ background: x }) }),
       V("massSize", { label: "Mass size", min: 0.3, max: 3, step: 0.05, digits: 2 }),
       check("Show rods", v.rods, (x) => setVisual({ rods: x })),
-      check("Glowing masses", v.massGlow, (x) => setVisual({ massGlow: x })),
       check("Show pivot", v.showPivot, (x) => setVisual({ showPivot: x }))));
   }
   parts.push(section("Overlays", open.includes("overlays"),
@@ -181,8 +174,9 @@ export function applyPreset(p) {
   bus.emit("preset", p.id);
 }
 
-const EVENT_COLORS = { flip: "pink", max_speed: "gold", acceleration: "purple", energy_error: "red", bookmark: "green", divergence: "cyan", poincare: "cyan" };
-export function eventColor(kind) { return token(EVENT_COLORS[kind] || "cyan"); }
+// Event kinds are told apart by grey level and marker height, not hue.
+const EVENT_COLORS = { flip: "fg", max_speed: "fg-2", acceleration: "fg-3", energy_error: "fg-2", bookmark: "fg", divergence: "fg", poincare: "fg-2" };
+export function eventColor(kind) { return token(EVENT_COLORS[kind] || "fg-2"); }
 
 /** Timeline scrubber with event markers, bookmarks, A/B marks and a selection range. */
 export class Timeline {
@@ -228,10 +222,8 @@ export class Timeline {
     ctx.fillStyle = token("panel-3");
     roundRect(ctx, 6, y - 3, w - 12, 6, 3); ctx.fill();
     if (!s) return;
-    if (this.range) { ctx.fillStyle = token("purple") + "55"; ctx.fillRect(x(this.range[0]), y - 12, x(this.range[1]) - x(this.range[0]), 24); }
-    const g = ctx.createLinearGradient(6, 0, w - 6, 0);
-    g.addColorStop(0, token("cyan")); g.addColorStop(0.5, token("purple")); g.addColorStop(1, token("pink"));
-    ctx.fillStyle = g;
+    if (this.range) { ctx.fillStyle = token("fg-4"); ctx.fillRect(x(this.range[0]), y - 12, x(this.range[1]) - x(this.range[0]), 24); }
+    ctx.fillStyle = token("fg");
     roundRect(ctx, 6, y - 3, Math.max(0, x(clock.t) - 6), 6, 3); ctx.fill();
     for (const e of s.events || []) {
       ctx.fillStyle = eventColor(e.kind);
@@ -243,9 +235,8 @@ export class Timeline {
       ctx.fillStyle = token("gold"); ctx.font = "600 10px ui-monospace"; ctx.textAlign = "center";
       ctx.fillText(k, x(t), y + 15); ctx.fillRect(x(t) - 0.5, y - 6, 1, 12);
     }
-    ctx.fillStyle = token("text");
-    ctx.beginPath(); ctx.arc(x(clock.t), y, 6, 0, 7); ctx.fill();
-    ctx.strokeStyle = token("cyan"); ctx.lineWidth = 2; ctx.stroke();
+    ctx.fillStyle = token("fg");
+    ctx.beginPath(); ctx.arc(x(clock.t), y, 5, 0, 7); ctx.fill();
   }
 }
 

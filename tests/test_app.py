@@ -265,3 +265,29 @@ def test_cli_serve_forwards_options(monkeypatch):
     monkeypatch.setattr(server, "main", lambda argv=None: seen.setdefault("argv", argv))
     cli.main(["serve", "--port", "9999", "--no-browser"])
     assert seen["argv"] == ["--port", "9999", "--no-browser"]
+
+
+def test_frontend_is_strictly_monochrome():
+    """Design rule: no hue anywhere in the dashboard. Every hex/rgb colour
+    literal in the static assets must be a grey (r == g == b)."""
+    import re
+    from pathlib import Path
+
+    static = Path(__file__).resolve().parents[1] / "chaos_lab" / "app" / "static"
+    offenders = []
+    for f in static.rglob("*"):
+        if f.suffix not in {".js", ".css", ".html"}:
+            continue
+        text = f.read_text()
+        for m in re.finditer(r"(?:#|%23)([0-9a-fA-F]{6}|[0-9a-fA-F]{3})\b", text):
+            h = m.group(1)
+            if len(h) == 3:
+                h = "".join(c * 2 for c in h)
+            r, g, b = (int(h[i:i + 2], 16) for i in (0, 2, 4))
+            if not (r == g == b):
+                offenders.append(f"{f.name}: #{m.group(1)}")
+        for m in re.finditer(r"rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)", text):
+            r, g, b = map(int, m.groups())
+            if not (r == g == b):
+                offenders.append(f"{f.name}: {m.group(0)}")
+    assert not offenders, offenders
