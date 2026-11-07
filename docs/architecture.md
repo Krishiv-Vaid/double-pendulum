@@ -2,21 +2,21 @@
 
 ```mermaid
 flowchart LR
-    subgraph core["chaos_lab.core"]
+    subgraph core["pendulum_sim.core"]
         CFG["config<br/>SimConfig · Physical · Initial · Numerics"]
         PHY["physics<br/>EOM · energy · Jacobian"]
         INT["integrators<br/>RK4 · RK45 · DOP853"]
         SIM["simulation<br/>simulate() → Result"]
         EXT["nlink · pivot<br/>(isolated models)"]
     end
-    subgraph analysis["chaos_lab.analysis"]
+    subgraph analysis["pendulum_sim.analysis"]
         EV["events"]
         LY["lyapunov"]
         PO["poincare"]
         LI["linear"]
         SP["spectral"]
     end
-    subgraph experiments["chaos_lab.experiments"]
+    subgraph experiments["pendulum_sim.experiments"]
         EN["ensemble"]
         MA["maps"]
         SW["sweeps"]
@@ -93,6 +93,6 @@ visualization → export/UI.**
 | `exports/media.py` | GIF/MP4/WebM/PNG writers, presets |
 | `exports/studio.py` | animations, stills, SVG, scientific figures |
 | `exports/data.py` | CSV with units, bundles, reproducibility stamp |
-| `cli.py` | `python -m chaos_lab …` |
+| `cli.py` | `python -m pendulum_sim …` |
 | `benchmarks.py` | reproducible benchmark suite |
 | `app/` | interactive web dashboard (stdlib HTTP server + canvas frontend) |

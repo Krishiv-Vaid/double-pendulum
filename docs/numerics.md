@@ -17,7 +17,7 @@ vectorizes trivially across thousands of pendulums.
 leapfrog/Verlet require a separable Hamiltonian $H = T(p) + V(q)$. Here $T$
 depends on $\cos(\theta_1 - \theta_2)$, so a symplectic method would have to be
 implicit. RK4 and the Dormand–Prince pairs are not symplectic, so energy drifts
-slowly. Chaos Lab measures that drift and shows it rather than hiding it.
+slowly. Double Pendulum Simulator measures that drift and shows it rather than hiding it.
 
 **Physical time vs output vs playback.** `Numerics.dt` is the integration step
 and `Numerics.output_dt` the spacing of stored samples, both in simulated

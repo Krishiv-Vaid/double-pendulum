@@ -99,7 +99,7 @@
   "playback_speed": 1.0,
   "note": "Simplified constant-gravity experiments; same physical clock in every panel.",
   "stamp": {
-    "chaos_lab_version": "0.2.0",
+    "simulator_version": "0.2.0",
     "git_commit": "23b5318",
     "created_utc": "2026-11-07T07:09:56+00:00",
     "python": "3.14.7",

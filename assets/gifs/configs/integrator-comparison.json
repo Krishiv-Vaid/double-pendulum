@@ -62,7 +62,7 @@
     "DOP853 rtol=1e-10": 1.783609347135921e-09
   },
   "stamp": {
-    "chaos_lab_version": "0.2.0",
+    "simulator_version": "0.2.0",
     "git_commit": "23b5318",
     "created_utc": "2026-11-07T07:09:41+00:00",
     "python": "3.14.7",

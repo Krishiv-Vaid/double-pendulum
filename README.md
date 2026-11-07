@@ -1,8 +1,8 @@
 <div align="center">
 
-# Chaos Lab Ultra
+# Double Pendulum Simulator
 
-**Two pendulums. Infinite possibilities. Explore the mathematics of chaos.**
+**Simulate, analyze and render the chaotic motion of a double pendulum.**
 
 ![Python](https://img.shields.io/badge/python-3.10%2B-black)
 [![License: MIT](https://img.shields.io/badge/license-MIT-black)](LICENSE)
@@ -11,7 +11,7 @@
 
 </div>
 
-Chaos Lab Ultra is a double pendulum simulator in Python built as a chaos
+Double Pendulum Simulator is a double pendulum simulator in Python built as a chaos
 laboratory. Its equations of motion come from a Lagrangian, and its
 integrators have been checked for accuracy. It renders cinematic animations,
 estimates Lyapunov exponents, computes Poincaré sections and initial-condition
@@ -26,9 +26,9 @@ python3 -m venv .venv && source .venv/bin/activate
 pip install -e ".[video]"           # numpy, scipy, matplotlib, pillow (+ bundled ffmpeg for MP4)
 
 python double_pendulum.py           # the original animated simulator (still works exactly as before)
-python -m chaos_lab render --preset double_flip --t-max 8 -o flip.gif
-python -m chaos_lab lyapunov --preset classic
-python -m chaos_lab map --res 300 -o flip-map.png
+python -m pendulum_sim render --preset double_flip --t-max 8 -o flip.gif
+python -m pendulum_sim lyapunov --preset classic
+python -m pendulum_sim map --res 300 -o flip-map.png
 ```
 
 ## Features
@@ -87,10 +87,10 @@ Rebuild all assets with `python scripts/generate_gallery.py`. A 720p MP4 is in
 ## Interactive dashboard
 
 ```bash
-python -m chaos_lab serve            # opens http://localhost:8765 (add --port N, --no-browser)
+python -m pendulum_sim serve            # opens http://localhost:8765 (add --port N, --no-browser)
 ```
 
-The dashboard is a standard-library HTTP server (`chaos_lab/app/`) with a canvas frontend that
+The dashboard is a standard-library HTTP server (`pendulum_sim/app/`) with a canvas frontend that
 needs no build step and no internet connection. It drives the same engine as the CLI. Numerical
 state lives on the server and visual state in the browser, so changing a colour, trail or camera
 never re-runs an integration. Heavy experiments run as background jobs with progress bars and a
@@ -119,7 +119,7 @@ WebM, PNG sequences, CSV, reproducible bundles, share links that encode the conf
 **Challenges**, a 14-lesson **Academy**, a ⌘K command palette, keyboard shortcuts (`?`), light and dark
 themes, reduced-motion mode, optional sonification and a 3D presentation view. The 3D view shows the
 same planar motion; it is not a new degree of freedom. Experiments and artworks are stored in
-`~/.chaos_lab/` (override with `CHAOS_LAB_HOME`). The server binds to `127.0.0.1` and has no
+`~/.pendulum_sim/` (override with `PENDULUM_SIM_HOME`). The server binds to `127.0.0.1` and has no
 authentication, so treat it as a local tool.
 
 ## Physics
@@ -175,7 +175,7 @@ normal modes, equilibria, the moving pivot and the N-link generalization.
   references, Poincaré event location and slow motion.
 * **Why not a symplectic integrator?** The Hamiltonian isn't separable, because
   $T$ depends on $\cos(\theta_1-\theta_2)$, so explicit leapfrog doesn't apply.
-  Instead of hiding the drift, Chaos Lab measures energy and its convergence.
+  Instead of hiding the drift, Double Pendulum Simulator measures energy and its convergence.
 
 The original simulator's energy convergence is unchanged:
 
@@ -208,32 +208,32 @@ that reproduces it.
 ## Experiment recipes
 
 ```bash
-python -m chaos_lab presets                                   # 25 presets
-python -m chaos_lab simulate --preset double_flip --bundle flip.zip   # reproducible bundle (config + data + stamp)
-python -m chaos_lab butterfly --preset butterfly --n 50 --epsilon 1e-8
-python -m chaos_lab lyapunov --theta1 150 --theta2 150 --t-max 60 --scan --csv lyap.csv
-python -m chaos_lab poincare --energy -15 --n 10 -o section.png
-python -m chaos_lab map --observable sensitivity --res 400 -o sensitivity.png
-python -m chaos_lab map --t1 -120 -100 --t2 50 70 --res 300 -o zoom.png
-python -m chaos_lab integrators --preset integrator_challenge
-python -m chaos_lab modes --L1 1.2 --L2 0.6
-python -m chaos_lab challenge                                 # list challenges
-python -m chaos_lab challenge normal_mode theta1_deg=3 theta2_deg=4.24
-python -m chaos_lab art-search --objective symmetry --n 256   # candidates as configs
+python -m pendulum_sim presets                                   # 25 presets
+python -m pendulum_sim simulate --preset double_flip --bundle flip.zip   # reproducible bundle (config + data + stamp)
+python -m pendulum_sim butterfly --preset butterfly --n 50 --epsilon 1e-8
+python -m pendulum_sim lyapunov --theta1 150 --theta2 150 --t-max 60 --scan --csv lyap.csv
+python -m pendulum_sim poincare --energy -15 --n 10 -o section.png
+python -m pendulum_sim map --observable sensitivity --res 400 -o sensitivity.png
+python -m pendulum_sim map --t1 -120 -100 --t2 50 70 --res 300 -o zoom.png
+python -m pendulum_sim integrators --preset integrator_challenge
+python -m pendulum_sim modes --L1 1.2 --L2 0.6
+python -m pendulum_sim challenge                                 # list challenges
+python -m pendulum_sim challenge normal_mode theta1_deg=3 theta2_deg=4.24
+python -m pendulum_sim art-search --objective symmetry --n 256   # candidates as configs
 ```
 
 ## Export
 
 ```bash
-python -m chaos_lab render --preset gradient_chaos -o reel.mp4 --video-preset reels --title "Chaos" --params
-python -m chaos_lab render --preset velocity_swirls -o clip.webm --camera smooth --energy-graph
-python -m chaos_lab render --preset classic -o ink.gif --theme light            # black on white
-python -m chaos_lab render --preset classic -o frames/ --fps 60          # PNG sequence
-python -m chaos_lab art --preset long_exposure --size 4k -o wallpaper.png --gallery
-python -m chaos_lab art --preset long_exposure --transparent -o sticker.png
-python -m chaos_lab art --preset long_exposure -o path.svg
-python -m chaos_lab figure --preset phase_space -o figure.pdf --theme light
-python -m chaos_lab simulate --preset classic --csv trajectory.csv
+python -m pendulum_sim render --preset gradient_chaos -o reel.mp4 --video-preset reels --title "Chaos" --params
+python -m pendulum_sim render --preset velocity_swirls -o clip.webm --camera smooth --energy-graph
+python -m pendulum_sim render --preset classic -o ink.gif --theme light            # black on white
+python -m pendulum_sim render --preset classic -o frames/ --fps 60          # PNG sequence
+python -m pendulum_sim art --preset long_exposure --size 4k -o wallpaper.png --gallery
+python -m pendulum_sim art --preset long_exposure --transparent -o sticker.png
+python -m pendulum_sim art --preset long_exposure -o path.svg
+python -m pendulum_sim figure --preset phase_space -o figure.pdf --theme light
+python -m pendulum_sim simulate --preset classic --csv trajectory.csv
 ```
 
 * **Video presets:** `youtube`, `reels`, `square`, `ultrawide`,
@@ -261,7 +261,7 @@ Run all of them with `pytest`.
 
 ## Performance
 
-Measured with `python -m chaos_lab bench`. Full table and environment:
+Measured with `python -m pendulum_sim bench`. Full table and environment:
 [benchmarks/results.md](benchmarks/results.md).
 
 | Benchmark (Apple M4, Python 3.14) | Measured |
@@ -293,13 +293,13 @@ flowchart LR
 Details are in [docs/architecture.md](docs/architecture.md).
 
 ```
-chaos_lab/
+pendulum_sim/
 ├── core/         config, physics, integrators, simulation, nlink, pivot
 ├── analysis/     events, lyapunov, poincare, linear, spectral
 ├── experiments/  ensemble, maps, sweeps, integrator_lab, presets, challenges, art
 ├── rendering/    palettes, raster, figures
 ├── exports/      media, studio, data
-├── cli.py        python -m chaos_lab …
+├── cli.py        python -m pendulum_sim …
 └── benchmarks.py
 double_pendulum.py   original entry point (same CLI and output)
 scripts/             generate_gallery.py, build_gallery_docs.py
@@ -313,7 +313,7 @@ docs/                physics, numerics, architecture, gallery, academy
 pip install -e ".[dev]"
 pytest -q              # ~1 minute
 ruff check .
-python -m chaos_lab bench --quick
+python -m pendulum_sim bench --quick
 ```
 
 ## Troubleshooting
@@ -322,7 +322,7 @@ python -m chaos_lab bench --quick
 |---|---|
 | `MP4/WebM export needs ffmpeg` | `pip install imageio-ffmpeg` (bundles a binary) or install system ffmpeg |
 | No window appears with `double_pendulum.py` | You are on a headless backend. Use `--save out.gif`, or set `MPLBACKEND=MacOSX`/`TkAgg` |
-| Chaos map is slow | Lower `--res` or `--t-max`. Maps of 120k+ pixels use all cores, and results are cached in `~/.cache/chaos_lab/maps` |
+| Chaos map is slow | Lower `--res` or `--t-max`. Maps of 120k+ pixels use all cores, and results are cached in `~/.cache/pendulum_sim/maps` |
 | `ValueError: ... exceeds ... safety limit` | The requested run is too large (e.g. a tiny dt with a long t_max). Reduce it or use an adaptive method |
 | Energy error looks large | Halve `--dt` or tighten `--rtol`. For forced runs the diagnostic is the energy-balance residual |
 
@@ -336,7 +336,7 @@ updated sidecar.
 
 - [x] Scientific foundation: verified equations of motion, tests, CI
 - [x] Cinematic renderer, export studio, 20-demo gallery
-- [x] Chaos laboratory: ensembles, Lyapunov, Poincaré, maps, sweeps
+- [x] Chaos analysis: ensembles, Lyapunov, Poincaré, maps, sweeps
 - [x] Advanced physics: damping, driving, normal modes, equilibria, moving pivot, triple pendulum
 - [x] Interactive dashboard: playground with time machine, studio, butterfly arena, fractal explorer, phase space, physics lab, notebook, gallery, export studio, challenges, academy
 - [x] Audio sonification and the 3D presentation view (dashboard)

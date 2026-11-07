@@ -23,4 +23,4 @@
 | peak traced memory: 30 s RK4 run (1/240 s output) | 0.403 | MiB |
 | peak traced memory: 100-pendulum ensemble 10 s | 2.16 | MiB |
 
-Measured on Apple M4 (10 logical CPUs, 16 GB RAM), macOS-26.5.2-arm64-arm-64bit-Mach-O; Python 3.14.7, NumPy 2.5.4, SciPy 1.18.1, Matplotlib 3.11.2; chaos_lab 0.2.0 (commit 249277a), 2026-11-07T07:18:12+00:00. System load average at start (1/5/15 min): 3.5, 3.5, 3.5.
+Measured on Apple M4 (10 logical CPUs, 16 GB RAM), macOS-26.5.2-arm64-arm-64bit-Mach-O; Python 3.14.7, NumPy 2.5.4, SciPy 1.18.1, Matplotlib 3.11.2; pendulum_sim 0.2.0 (commit 249277a), 2026-11-07T07:18:12+00:00. System load average at start (1/5/15 min): 3.5, 3.5, 3.5.

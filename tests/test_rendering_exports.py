@@ -8,9 +8,9 @@ import numpy as np
 import pytest
 from PIL import Image
 
-from chaos_lab import Initial, Numerics, SimConfig, simulate
-from chaos_lab.exports import data, media, studio
-from chaos_lab.rendering import palettes, raster
+from pendulum_sim import Initial, Numerics, SimConfig, simulate
+from pendulum_sim.exports import data, media, studio
+from pendulum_sim.rendering import palettes, raster
 
 ROOT = Path(__file__).resolve().parents[1]
 CFG = SimConfig(initial=Initial(150, 20), numerics=Numerics(t_max=1.0))
@@ -147,7 +147,7 @@ def test_csv_units_and_bundle(tmp_path):
 
 
 def _cli(*args):
-    return subprocess.run([sys.executable, "-m", "chaos_lab", *args], capture_output=True, text=True, cwd=ROOT,
+    return subprocess.run([sys.executable, "-m", "pendulum_sim", *args], capture_output=True, text=True, cwd=ROOT,
                           env={"MPLBACKEND": "Agg", "PATH": "/usr/bin:/bin"}, timeout=300)
 
 

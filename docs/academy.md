@@ -14,7 +14,7 @@ two point masses, it moves in a plane, and nothing here involves friction
 unless you add it. Two angles describe its configuration completely.
 
 ```bash
-python -m chaos_lab render --preset classic --t-max 8 -o classic.gif --width 480 --height 480
+python -m pendulum_sim render --preset classic --t-max 8 -o classic.gif --width 480 --height 480
 ```
 
 ### 2. Why is it nonlinear?
@@ -26,7 +26,7 @@ $\sin\theta \approx \theta$ and the system becomes linear: its motion is then
 exactly a sum of two normal modes.
 
 ```bash
-python -m chaos_lab modes            # the two small-angle frequencies and mode shapes
+python -m pendulum_sim modes            # the two small-angle frequencies and mode shapes
 ```
 
 ### 3. What are generalized coordinates?
@@ -71,7 +71,7 @@ energy, which should be constant without friction, and see what happens when
 you refine the step.
 
 ```bash
-python -m chaos_lab integrators --preset integrator_challenge
+python -m pendulum_sim integrators --preset integrator_challenge
 ```
 
 ### 8. What is sensitive dependence on initial conditions?
@@ -82,19 +82,19 @@ experiment also runs a numerical control (the same start at dt and dt/2) to
 show that the divergence is not an integration artefact.
 
 ```bash
-python -m chaos_lab butterfly --preset butterfly --n 10 --epsilon 1e-6
+python -m pendulum_sim butterfly --preset butterfly --n 10 --epsilon 1e-6
 ```
 
 ### 9. What is a Lyapunov exponent?
 
 It is the average exponential rate $\lambda$ at which nearby trajectories
 separate: $d(t) \approx d_0 e^{\lambda t}$. A positive $\lambda$ is a hallmark
-of chaos. Chaos Lab estimates a *finite-time* value. It depends on the run
+of chaos. Double Pendulum Simulator estimates a *finite-time* value. It depends on the run
 length and the estimator settings, and `--scan` shows how much.
 
 ```bash
-python -m chaos_lab lyapunov --preset classic --t-max 60 --scan
-python -m chaos_lab lyapunov --preset near_equilibrium --t-max 60
+python -m pendulum_sim lyapunov --preset classic --t-max 60 --scan
+python -m pendulum_sim lyapunov --preset near_equilibrium --t-max 60
 ```
 
 ### 10. What is phase space?
@@ -104,7 +104,7 @@ in a 4-dimensional space. A trajectory is a curve through that space. Every
 2D or 3D plot of it is a projection, never the whole picture.
 
 ```bash
-python -m chaos_lab figure --preset phase_space -o phase.png
+python -m pendulum_sim figure --preset phase_space -o phase.png
 ```
 
 ### 11. What is a Poincaré section?
@@ -115,7 +115,7 @@ regular motion leaves points on closed curves, called islands. Chaotic motion
 scatters points over a region.
 
 ```bash
-python -m chaos_lab poincare --energy -15 --n 8 -o section.png
+python -m pendulum_sim poincare --energy -15 --n 8 -o section.png
 ```
 
 ### 12. What does energy conservation tell us?
@@ -127,7 +127,7 @@ numerical error, but a small drift does not prove the trajectory is pointwise
 accurate.
 
 ```bash
-python -m chaos_lab challenge flip theta1_deg=40 theta2_deg=40
+python -m pendulum_sim challenge flip theta1_deg=40 theta2_deg=40
 ```
 
 ### 13. What makes motion regular or chaotic?
@@ -149,5 +149,5 @@ improving the initial measurement 1000× buys only $\ln 1000 \approx 7$ more
 seconds of prediction. Determinism does not imply predictability.
 
 ```bash
-python -m chaos_lab lyapunov --preset classic     # prints a predictability horizon
+python -m pendulum_sim lyapunov --preset classic     # prints a predictability horizon
 ```

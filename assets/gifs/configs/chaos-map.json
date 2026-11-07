@@ -35,7 +35,7 @@
   "serial_compute_s": 10.354617082999539,
   "observable": "first_flip: time until either arm passes over the top",
   "stamp": {
-    "chaos_lab_version": "0.2.0",
+    "simulator_version": "0.2.0",
     "git_commit": "23b5318",
     "created_utc": "2026-11-07T07:09:32+00:00",
     "python": "3.14.7",

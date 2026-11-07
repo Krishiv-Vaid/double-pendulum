@@ -3,9 +3,9 @@
 import numpy as np
 import pytest
 
-from chaos_lab import simulate
-from chaos_lab.analysis import events, lyapunov
-from chaos_lab.experiments import presets
+from pendulum_sim import simulate
+from pendulum_sim.analysis import events, lyapunov
+from pendulum_sim.experiments import presets
 
 CHECKED = [p for p in presets.PRESETS if p["checks"]]
 

@@ -33,7 +33,7 @@
   },
   "playback_speed": 4.0,
   "stamp": {
-    "chaos_lab_version": "0.2.0",
+    "simulator_version": "0.2.0",
     "git_commit": "23b5318",
     "created_utc": "2026-11-07T07:08:51+00:00",
     "python": "3.14.7",

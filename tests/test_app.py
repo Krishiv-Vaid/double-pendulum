@@ -9,14 +9,14 @@ import urllib.request
 import numpy as np
 import pytest
 
-from chaos_lab.app import api, store
-from chaos_lab.app.jobs import JobLimitError, JobManager
-from chaos_lab.core.config import SimConfig
+from pendulum_sim.app import api, store
+from pendulum_sim.app.jobs import JobLimitError, JobManager
+from pendulum_sim.core.config import SimConfig
 
 
 @pytest.fixture(autouse=True)
 def _home(tmp_path, monkeypatch):
-    monkeypatch.setenv("CHAOS_LAB_HOME", str(tmp_path / "home"))
+    monkeypatch.setenv("PENDULUM_SIM_HOME", str(tmp_path / "home"))
 
 
 def cfg(**changes):
@@ -176,7 +176,7 @@ def test_artwork_store_requires_png():
 
 @pytest.fixture(scope="module")
 def server():
-    from chaos_lab.app.server import make_server
+    from pendulum_sim.app.server import make_server
 
     httpd = make_server("127.0.0.1", 0, quiet=True)
     th = threading.Thread(target=httpd.serve_forever, daemon=True)
@@ -198,7 +198,7 @@ def _req(url, data=None, method=None, raw=False):
 
 def test_http_static_and_meta(server):
     status, html = _req(server + "/", raw=True)
-    assert status == 200 and b"Chaos Lab Ultra" in html
+    assert status == 200 and b"Double Pendulum Simulator" in html
     status, js = _req(server + "/js/main.js", raw=True)
     assert status == 200 and b"VIEWS" in js
     status, _ = _req(server + "/../../etc/passwd", raw=True)  # traversal falls back to index
@@ -258,8 +258,8 @@ def test_http_experiments_crud(server):
 
 
 def test_cli_serve_forwards_options(monkeypatch):
-    import chaos_lab.app.server as server
-    from chaos_lab import cli
+    import pendulum_sim.app.server as server
+    from pendulum_sim import cli
 
     seen = {}
     monkeypatch.setattr(server, "main", lambda argv=None: seen.setdefault("argv", argv))
@@ -273,7 +273,7 @@ def test_frontend_is_strictly_monochrome():
     import re
     from pathlib import Path
 
-    static = Path(__file__).resolve().parents[1] / "chaos_lab" / "app" / "static"
+    static = Path(__file__).resolve().parents[1] / "pendulum_sim" / "app" / "static"
     offenders = []
     for f in static.rglob("*"):
         if f.suffix not in {".js", ".css", ".html"}:

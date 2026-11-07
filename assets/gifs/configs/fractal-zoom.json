@@ -43,7 +43,7 @@
   "compute_s": 1.0796663330002048,
   "note": "Every level is recomputed from initial conditions, not upscaled. Fine detail is limited by the RK4 step and the 10 s horizon; intricate boundaries are not a proof of fractality.",
   "stamp": {
-    "chaos_lab_version": "0.2.0",
+    "simulator_version": "0.2.0",
     "git_commit": "23b5318",
     "created_utc": "2026-11-07T07:09:33+00:00",
     "python": "3.14.7",

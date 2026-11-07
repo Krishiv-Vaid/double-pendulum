@@ -1,9 +1,14 @@
 name: CI
 
+# Runs on demand only (Actions tab -> CI -> "Run workflow", or `gh workflow run CI`).
+# Automatic runs are paused while the GitHub account's Actions billing is unavailable;
+# to run on every push again, replace this block with:
+#   on:
+#     push:
+#       branches: [main]
+#     pull_request:
 on:
-  push:
-    branches: [main]
-  pull_request:
+  workflow_dispatch:
 
 jobs:
   test:

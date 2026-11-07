@@ -28,13 +28,13 @@ from PIL import Image, ImageDraw  # noqa: E402
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from chaos_lab import Initial, Numerics, Physical, SimConfig, simulate  # noqa: E402
-from chaos_lab.analysis import events, lyapunov, poincare  # noqa: E402
-from chaos_lab.core import physics  # noqa: E402
-from chaos_lab.experiments import ensemble, maps, presets  # noqa: E402
-from chaos_lab.exports import data as data_export  # noqa: E402
-from chaos_lab.exports.media import save_gif  # noqa: E402
-from chaos_lab.rendering import figures, palettes, raster  # noqa: E402
+from pendulum_sim import Initial, Numerics, Physical, SimConfig, simulate  # noqa: E402
+from pendulum_sim.analysis import events, lyapunov, poincare  # noqa: E402
+from pendulum_sim.core import physics  # noqa: E402
+from pendulum_sim.experiments import ensemble, maps, presets  # noqa: E402
+from pendulum_sim.exports import data as data_export  # noqa: E402
+from pendulum_sim.exports.media import save_gif  # noqa: E402
+from pendulum_sim.rendering import figures, palettes, raster  # noqa: E402
 
 OUT = ROOT / "assets" / "gifs"
 CFG_DIR = OUT / "configs"
@@ -759,7 +759,7 @@ def showcase():
         label(im, sub, (0.5, 0.55), size=14, color=TOK["text_2"], mono=False, anchor="mm")
         return [im] * 18
 
-    clips += title("CHAOS LAB ULTRA", "Two pendulums. Infinite possibilities.")
+    clips += title("DOUBLE PENDULUM SIMULATOR", "simulate · analyze · render")
     r = run(SimConfig(initial=Initial(160, 20), numerics=Numerics(t_max=5)), 1 / 120)
     R = pend_renderer(r, (size, size), trail="time", trail_seconds=4, glow=0.0)
     clips += [R.render(i) for i in frame_indices(r.t, fps)]
@@ -774,7 +774,7 @@ def showcase():
     r = run(SimConfig(initial=Initial(90, 90), numerics=Numerics(t_max=40)), 1 / 120)
     R = pend_renderer(r, (size, size), trail="exposure", glow=0.15, trail_width=1.5)
     clips += [R.render(i) for i in frame_indices(r.t, fps, 8.0)]
-    clips += title("Explore the mathematics of chaos", "python -m chaos_lab")
+    clips += title("Explore the mathematics of chaos", "python -m pendulum_sim")
     return write("cinematic-showcase", fade(clips), fps, {"note": "Montage of independent verified simulations."})
 
 
@@ -782,13 +782,13 @@ def showcase():
 @gen("video-hero")
 def video_hero():
     """Longer, higher-quality MP4 (assets/videos/) — too large to be a GIF."""
-    from chaos_lab.exports import studio
+    from pendulum_sim.exports import studio
 
     cfg = SimConfig(Physical(), Initial(160, 20), Numerics(t_max=20), "Hero video")
     out = ROOT / "assets" / "videos" / "hero-chaos-720p.mp4"
     meta = studio.render_animation(cfg, out, raster.Style(width=1280, height=720, trail="fade",
                                                           trail_seconds=5.0, glow=0.0), fps=30, quality="medium",
-                                   title="Chaos Lab Ultra", show_params=True)
+                                   title="Double Pendulum Simulator", show_params=True)
     print(f"  {out.name}  {meta['frames']} frames  {out.stat().st_size / 1e6:.2f} MB")
 
 

@@ -1,7 +1,7 @@
 # Physics of the Double Pendulum
 
-This is the reference for every equation used in Chaos Lab Ultra. Each result
-here is implemented in `chaos_lab/core/physics.py` and checked by the test
+This is the reference for every equation used in Double Pendulum Simulator. Each result
+here is implemented in `pendulum_sim/core/physics.py` and checked by the test
 suite (see [Validation](#validation)).
 
 ## Model and conventions
@@ -125,7 +125,7 @@ E(t) - E(0) = W_\text{drive}(t) - W_\text{damp}(t), \qquad
 W_\text{damp} = \int_0^t \left[b_1\omega_1^2 + b_2(\omega_2-\omega_1)^2\right] dt' \ge 0 .
 ```
 
-Chaos Lab integrates both works along the trajectory and reports the residual
+Double Pendulum Simulator integrates both works along the trajectory and reports the residual
 of this balance as the accuracy diagnostic for forced runs.
 
 ## Angular momentum
