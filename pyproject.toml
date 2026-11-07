@@ -35,6 +35,8 @@ chaos_lab = ["app/static/**/*", "app/static/*"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 markers = ["slow: longer-running numerical tests"]
+# dump a traceback if any single test runs longer than this (seconds)
+faulthandler_timeout = 300
 
 [tool.ruff]
 line-length = 120
@@ -49,3 +51,4 @@ ignore = ["E731", "B905"]
 # data tables of human-readable descriptions
 "chaos_lab/experiments/presets.py" = ["E501"]
 "chaos_lab/experiments/challenges.py" = ["E501"]
+"scripts/build_gallery_docs.py" = ["E501"]
