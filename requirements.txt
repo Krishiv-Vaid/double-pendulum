@@ -1,2 +1,7 @@
-matplotlib==3.11.2
+# Runtime dependencies (pinned versions used for development and the published benchmarks)
 numpy==2.5.4
+scipy==1.18.1
+matplotlib==3.11.2
+pillow==13.0.0
+# Optional: MP4/WebM export without a system ffmpeg
+imageio-ffmpeg==0.8.1

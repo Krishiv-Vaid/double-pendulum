@@ -27,29 +27,29 @@ Two point masses $m_1, m_2$ hang on massless rigid rods of length $L_1, L_2$. Th
 
 **Positions** (pivot at the origin, $y$ up):
 
-$$
+```math
 x_1 = L_1\sin\theta_1,\quad y_1 = -L_1\cos\theta_1,\qquad
 x_2 = x_1 + L_2\sin\theta_2,\quad y_2 = y_1 - L_2\cos\theta_2
-$$
+```
 
 **Kinetic and potential energy:**
 
-$$
+```math
 T = \tfrac12 (m_1+m_2) L_1^2\omega_1^2 + \tfrac12 m_2 L_2^2 \omega_2^2 + m_2 L_1 L_2\, \omega_1\omega_2 \cos(\theta_1-\theta_2)
-$$
+```
 
-$$
+```math
 V = -(m_1+m_2)\, g L_1 \cos\theta_1 - m_2\, g L_2 \cos\theta_2
-$$
+```
 
 **Equations of motion.** Applying the Euler–Lagrange equations to $\mathcal{L} = T - V$, with $\Delta = \theta_1 - \theta_2$, gives a linear system in the angular accelerations:
 
-$$
+```math
 \begin{pmatrix} (m_1+m_2)L_1 & m_2 L_2\cos\Delta \\ L_1\cos\Delta & L_2 \end{pmatrix}
 \begin{pmatrix} \ddot\theta_1 \\ \ddot\theta_2 \end{pmatrix}
 =
 \begin{pmatrix} -m_2 L_2\,\omega_2^2 \sin\Delta - (m_1+m_2)\, g\sin\theta_1 \\ L_1\,\omega_1^2\sin\Delta - g\sin\theta_2 \end{pmatrix}
-$$
+```
 
 The determinant is $L_1L_2\,(m_1 + m_2\sin^2\Delta) > 0$, so the system can always be solved. The code solves this 2×2 system at every step rather than using the long expanded closed-form expressions.
 
