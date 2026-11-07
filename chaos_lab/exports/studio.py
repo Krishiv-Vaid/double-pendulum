@@ -91,15 +91,15 @@ def render_animation(cfg: SimConfig, path, style: raster.Style | None = None, pr
                 raster._text(im, 0.5, 0.04, title, size=int(sm * 1.6), anchor="ma")
             if show_timecode:
                 lab = f"t = {r.t[i]:6.2f} s" + (f"   ({speed:g}× speed)" if speed != 1 else "")
-                raster._text(im, 0.025, 0.95, lab, size=sm, color="#95A3BA", mono=True)
+                raster._text(im, 0.025, 0.95, lab, size=sm, color=palettes.TOKENS[style.theme]["text_2"], mono=True)
             if show_params:
                 p = cfg.physical
                 ini = cfg.initial
                 txt = (f"m1={p.m1:g} m2={p.m2:g} kg  L1={p.L1:g} L2={p.L2:g} m  g={p.g:g}\n"
                        f"θ1(0)={ini.theta1_deg:g}° θ2(0)={ini.theta2_deg:g}°  {cfg.numerics.method.upper()}")
-                raster._text(im, 0.025, 0.025, txt, size=sm, color="#95A3BA", mono=True)
+                raster._text(im, 0.025, 0.025, txt, size=sm, color=palettes.TOKENS[style.theme]["text_2"], mono=True)
             if energy_graph:
-                _energy_inset(im, r.t, E, err, int(i))
+                _energy_inset(im, r.t, E, err, int(i), style.theme)
             if progress:
                 progress((k + 1) / len(idx))
             yield im
@@ -122,7 +122,7 @@ def render_animation(cfg: SimConfig, path, style: raster.Style | None = None, pr
     return meta
 
 
-def _energy_inset(im, t, E, err, i):
+def _energy_inset(im, t, E, err, i, theme: str = "dark"):
     """Draw a small sparkline of the energy error in the lower-right corner."""
     from PIL import ImageDraw
 
@@ -130,13 +130,18 @@ def _energy_inset(im, t, E, err, i):
     W, H = im.size
     w, h = int(W * 0.28), int(H * 0.12)
     x0, y0 = W - w - int(W * 0.025), H - h - int(H * 0.025)
-    d.rounded_rectangle([x0, y0, x0 + w, y0 + h], radius=8, fill=(16, 21, 34, 200), outline=(35, 44, 66, 255))
+    tok = palettes.TOKENS[theme]
+
+    def rgba(h, a=255):
+        return tuple(int(255 * c) for c in palettes.hex_to_rgb(h)) + (a,)
+
+    d.rounded_rectangle([x0, y0, x0 + w, y0 + h], radius=6, fill=rgba(tok["panel_2"], 220), outline=rgba(tok["border"]))
     span = max(np.max(np.abs(err)), 1e-16)
     xs = x0 + 6 + (w - 12) * t[: i + 1: max(1, i // 300)] / max(t[-1], 1e-9)
     ys = y0 + h / 2 - (h / 2 - 6) * err[: i + 1: max(1, i // 300)] / span
     if len(xs) > 1:
-        d.line(list(zip(xs, ys)), fill=(57, 255, 136, 255), width=max(1, W // 600))
-    raster._text(im, (x0 + 6) / W, (y0 + 4) / H, f"ΔE/E0 {err[i]:+.1e}", size=max(9, H // 70), color="#95A3BA",
+        d.line(list(zip(xs, ys)), fill=rgba(tok["fg"]), width=max(1, W // 600))
+    raster._text(im, (x0 + 6) / W, (y0 + 4) / H, f"ΔE/E0 {err[i]:+.1e}", size=max(9, H // 70), color=tok["text_2"],
                  mono=True)
 
 
@@ -153,7 +158,7 @@ def render_still(cfg: SimConfig, path, style: raster.Style | None = None, size: 
     the image can be reproduced; with ``save_to_gallery`` a copy goes to
     ~/.chaos_lab/artworks/.
     """
-    style = style or raster.Style(trail="exposure", palette="plasma", glow=0.9, show_pendulum=False)
+    style = style or raster.Style(trail="exposure", glow=0.2, show_pendulum=False)
     if size is not None:
         w, h = media.IMAGE_PRESETS[size] if isinstance(size, str) else size
         style = replace(style, width=int(w), height=int(h))
@@ -243,7 +248,7 @@ def scientific_figure(result, path=None, panels=PANELS, theme: str = "dark", col
     _, _, vx2, vy2 = physics.velocities(y, result.p)
 
     def phase(ax, x, v, xl, yl, wrap=True):
-        ax.scatter(x, v, c=tt, s=0.6, cmap="plasma", lw=0, rasterized=True)  # keep SVG/PDF small
+        ax.scatter(x, v, c=tt, s=0.6, cmap=palettes.colormap(theme), lw=0, rasterized=True)  # keep SVG/PDF small
         ax.set_xlabel(xl)
         ax.set_ylabel(yl)
 
@@ -261,32 +266,32 @@ def scientific_figure(result, path=None, panels=PANELS, theme: str = "dark", col
             phase(ax, y[:, 2], y[:, 3], r"$\omega_1$ [rad/s]", r"$\omega_2$ [rad/s]")
             ax.set_title("angular velocities")
         elif name == "energy":
-            ax.plot(tt, e["E"], color=t["green"])
+            ax.plot(tt, e["E"], color=t["fg"])
             ax.set_title("total energy")
             ax.set_xlabel("t [s]")
             ax.set_ylabel("E [J]")
             ax.ticklabel_format(axis="y", useOffset=False)
         elif name == "energy_components":
-            ax.plot(tt, e["T"], color=t["cyan"], lw=0.8, label="T")
-            ax.plot(tt, e["V"], color=t["pink"], lw=0.8, label="V")
+            ax.plot(tt, e["T"], color=t["fg"], lw=0.8, label="T")
+            ax.plot(tt, e["V"], color=t["fg_2"], lw=0.8, ls="--", label="V")
             ax.legend()
             ax.set_title("kinetic / potential")
             ax.set_xlabel("t [s]")
             ax.set_ylabel("J")
         elif name == "alpha":
-            ax.plot(tt, acc[:, 0], color=t["cyan"], lw=0.6, label=r"$\alpha_1$")
-            ax.plot(tt, acc[:, 1], color=t["pink"], lw=0.6, label=r"$\alpha_2$")
+            ax.plot(tt, acc[:, 0], color=t["fg"], lw=0.6, label=r"$\alpha_1$")
+            ax.plot(tt, acc[:, 1], color=t["fg_3"], lw=0.6, label=r"$\alpha_2$")
             ax.legend()
             ax.set_title("angular acceleration")
             ax.set_xlabel("t [s]")
             ax.set_ylabel(r"rad/s$^2$")
         elif name == "speed":
-            ax.plot(tt, np.hypot(vx2, vy2), color=t["gold"], lw=0.7)
+            ax.plot(tt, np.hypot(vx2, vy2), color=t["fg"], lw=0.7)
             ax.set_title("lower-bob speed")
             ax.set_xlabel("t [s]")
             ax.set_ylabel("m/s")
         elif name == "error":
-            ax.plot(tt, result.relative_energy_error, color=t["gold"], lw=0.7)
+            ax.plot(tt, result.relative_energy_error, color=t["fg"], lw=0.7)
             ax.set_title("relative energy error")
             ax.set_xlabel("t [s]")
             ax.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))

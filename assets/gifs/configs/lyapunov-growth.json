@@ -37,8 +37,8 @@
   "note": "Finite-time estimate; not a universal constant.",
   "stamp": {
     "chaos_lab_version": "0.2.0",
-    "git_commit": "7d474ff",
-    "created_utc": "2026-11-07T01:52:18+00:00",
+    "git_commit": "23b5318",
+    "created_utc": "2026-11-07T07:10:41+00:00",
     "python": "3.14.7",
     "numpy": "2.5.4",
     "scipy": "1.18.1",

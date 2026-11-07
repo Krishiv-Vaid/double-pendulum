@@ -16,7 +16,7 @@ CFG_DIR = ROOT / "assets" / "gifs" / "configs"
 
 SECTIONS = {
     "Cinematic Art": [
-        ("hero-chaos", "Hero Chaos", "A single chaotic double pendulum with a rainbow trail. The glow is a rendering effect "
+        ("hero-chaos", "Hero Chaos", "A single chaotic double pendulum with a fading white trail. The faint bloom is a rendering effect "
                                      "added to the light layer; the trajectory itself is untouched."),
         ("long-exposure", "Long Exposure", "The lower bob paints its path over 45 s of simulated time (4× playback). "
                                            "Each pixel keeps the brightest value it has seen."),
@@ -32,7 +32,7 @@ SECTIONS = {
                                                  "control (same start, dt vs dt/2), which stays orders of magnitude "
                                                  "below the physical divergence."),
         ("pendulum-swarm", "100 Pendulums", "One hundred pendulums spread over 1e-4 rad in θ2: a single rod splits "
-                                            "into a rainbow fan."),
+                                            "into a fan."),
         ("lyapunov-growth", "Lyapunov Growth", "Separation of two trajectories started 1e-8 apart (no "
                                                "renormalization) against d0·e^(λt), and the running finite-time "
                                                "Lyapunov estimate from the tangent-space method."),

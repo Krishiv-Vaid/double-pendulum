@@ -300,3 +300,14 @@ def test_scalar_fast_path_matches_vectorized_rk4(p):
     b = integrate_rk4(lambda t, y: physics.derivatives(t, y, p), y0, 3.0, 1e-3, output_every=10)
     assert np.allclose(a.y, b.y, rtol=0, atol=1e-11)
     assert np.array_equal(a.t, b.t)
+
+
+def test_relative_energy_error_safe_when_e0_is_zero():
+    """90°/90° at rest has E0 = 0 (up to rounding); the error must be referenced to the
+    characteristic energy rather than exploding (regression: ~1e3 reported before)."""
+    r = simulate(SimConfig(initial=Initial(90, 90), numerics=Numerics(t_max=10)))
+    assert abs(r.energy["E"][0]) < 1e-9
+    assert r.energy_reference == pytest.approx(r.energy_scale)
+    assert np.max(np.abs(r.relative_energy_error)) < 1e-5
+    classic = simulate(SimConfig(numerics=Numerics(t_max=2)))
+    assert classic.energy_reference == pytest.approx(abs(classic.energy["E"][0]))

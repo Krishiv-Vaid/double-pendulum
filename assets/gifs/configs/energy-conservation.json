@@ -35,8 +35,8 @@
   "max_abs_rel_energy_error": 1.4069394940144267e-07,
   "stamp": {
     "chaos_lab_version": "0.2.0",
-    "git_commit": "7d474ff",
-    "created_utc": "2026-11-07T01:50:22+00:00",
+    "git_commit": "23b5318",
+    "created_utc": "2026-11-07T07:08:57+00:00",
     "python": "3.14.7",
     "numpy": "2.5.4",
     "scipy": "1.18.1",

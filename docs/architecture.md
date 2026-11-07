@@ -87,7 +87,7 @@ visualization → export/UI.**
 | `experiments/integrator_lab.py` | method comparison, RK4 convergence order |
 | `experiments/presets.py` | 25 presets with verified claims |
 | `experiments/challenges.py`, `art.py` | challenge evaluators, art-search heuristics |
-| `rendering/palettes.py` | design tokens and gradients (incl. colour-blind-safe) |
+| `rendering/palettes.py` | monochrome design tokens (dark and light themes) and greyscale ramps |
 | `rendering/raster.py` | supersampled additive-glow renderer, trails, particles, camera |
 | `rendering/figures.py` | Matplotlib theme helpers |
 | `exports/media.py` | GIF/MP4/WebM/PNG writers, presets |

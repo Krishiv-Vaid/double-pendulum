@@ -32,19 +32,20 @@ class Style:
     width: int = 720
     height: int = 720
     ssaa: int = 2
-    background: str = "#070910"
+    theme: str = "dark"  # "dark" = white on black, "light" = black on white
+    background: str | None = None  # None -> theme background
     transparent: bool = False
-    palette: str | list = "rainbow"
+    palette: str | list | None = None  # None -> theme trail ramp
     trail: str = "fade"
     trail_seconds: float = 3.0
-    trail_width: float = 2.2  # output pixels
-    glow: float = 0.8  # 0 disables
-    glow_radius: float = 6.0  # output pixels
+    trail_width: float = 1.6  # output pixels
+    glow: float = 0.0  # 0 disables; small values give a soft bloom
+    glow_radius: float = 5.0  # output pixels
     exposure_decay: float = 1.0  # 1.0 = never fades (long exposure)
-    rod_color: str = "#F4F7FF"
-    rod_width: float = 3.0
-    bob_colors: tuple[str, str] = ("#00E5FF", "#FF3CAC")
-    bob_radius: float = 9.0
+    rod_color: str | None = None  # None -> theme foreground
+    rod_width: float = 2.2
+    bob_colors: tuple[str, str] | None = None
+    bob_radius: float = 7.0
     show_pendulum: bool = True
     show_pivot: bool = True
     particles: str = "none"
@@ -60,6 +61,24 @@ class Style:
     motion_blur: int = 0  # sub-samples per frame
     overlay_text: list = field(default_factory=list)  # [(x_frac, y_frac, text, size, hex)]
     seed: int = 0
+
+    def __post_init__(self):
+        if self.theme not in palettes.TOKENS:
+            raise ValueError("theme must be 'dark' or 'light'")
+        tok = palettes.TOKENS[self.theme]
+        if self.background is None:
+            self.background = tok["bg"]
+        if self.palette is None:
+            self.palette = palettes.THEME_TRAIL[self.theme]
+        if self.rod_color is None:
+            self.rod_color = tok["fg_2"]
+        if self.bob_colors is None:
+            self.bob_colors = (tok["fg"], tok["fg"])
+
+    @property
+    def ink(self) -> bool:
+        """Light theme: marks are drawn as ink subtracted from the background."""
+        return self.theme == "light"
 
     def validate(self):
         if self.trail not in TRAIL_MODES:
@@ -122,7 +141,7 @@ class Particles:
             self.vel = np.zeros((n, 2))
             self.age = self.rng.uniform(0, 10, n)
             self.life = np.full(n, np.inf)
-            self.col = np.tile([0.85, 0.9, 1.0], (n, 1))
+            self.col = np.tile([0.85, 0.85, 0.85], (n, 1))
 
     def step(self, dt, bob, bob_vel, color, burst=False):
         kind = self.s.particles
@@ -145,7 +164,7 @@ class Particles:
                 v += 0.25 * np.asarray(bob_vel)
             c = np.tile(color, (n_new, 1))
             if kind == "confetti":
-                c = palettes.sample("rainbow", self.rng.random(n_new))
+                c = palettes.sample("gray", self.rng.uniform(0.4, 1.0, n_new))
             if kind == "smoke":
                 c = np.tile([0.55, 0.6, 0.7], (n_new, 1))
             self.pos = np.concatenate([self.pos, np.tile(bob, (n_new, 1))])
@@ -287,7 +306,8 @@ class PendulumRenderer:
                         continue
                     if alpha[m] < 0.02:
                         continue
-                    draw.line([(X[m], Y[m]), (X[m + 1], Y[m + 1])], fill=_rgb255(cols[m], alpha[m]), width=width)
+                    c = 1.0 - cols[m] if s.ink else cols[m]
+                    draw.line([(X[m], Y[m]), (X[m + 1], Y[m + 1])], fill=_rgb255(c, alpha[m]), width=width)
 
     # ------------------------------------------------------------------ frame
     def render(self, i: int, overlay: list | None = None) -> Image.Image:
@@ -308,6 +328,8 @@ class PendulumRenderer:
             v = (self.xy[i, 0, 2:4] - self.xy[j, 0, 2:4]) / max(self.dt * max(i - j, 1), 1e-9)
             burst = any(self.prev_i is not None and self.t[self.prev_i] < e <= self.t[i] for e in self.events)
             col = palettes.sample(s.palette, [0.8])[0]
+            if s.ink:
+                col = 1.0 - col
             self.particles.step(fdt, bob, v, col, burst=burst)
             self.particles.draw(d, self.cam, W, H, ss)
 
@@ -335,7 +357,8 @@ class PendulumRenderer:
         else:
             if self._bg_img is None:
                 self._bg_img = Image.new("RGB", (W, H), tuple(int(255 * c) for c in self.bg))
-            img = ImageChops.add(self._bg_img, lightsum)
+            # dark theme adds light to the background; light theme subtracts ink from it
+            img = (ImageChops.subtract if s.ink else ImageChops.add)(self._bg_img, lightsum)
 
         if s.show_pendulum:
             self._draw_pendulums(img, i)
@@ -346,61 +369,57 @@ class PendulumRenderer:
         return out
 
     def _draw_pendulums(self, img, i):
+        """Rods as thin lines, bobs as solid discs. A soft halo is added only when glow > 0."""
         s = self.s
         ss = s.ssaa
         W, H = self.W, self.H
-        q = 4  # halo layer is drawn and blurred at quarter resolution
-        glow_layer = Image.new("RGBA", (W // q, H // q), (0, 0, 0, 0))
-        gd = ImageDraw.Draw(glow_layer)
         d = ImageDraw.Draw(img, "RGBA")
         subs = [i]
         if s.motion_blur and self.prev_i is not None and i > self.prev_i:
             subs = list(np.linspace(self.prev_i, i, s.motion_blur + 1).astype(int)[1:])
         many = self.N > 12
+        halo = s.glow > 0 and not many
+        if halo:
+            q = 4  # halo drawn and blurred at quarter resolution
+            glow_layer = Image.new("RGBA", (W // q, H // q), (0, 0, 0, 0))
+            gd = ImageDraw.Draw(glow_layer)
+        P0 = self.cam.to_px(0.0, 0.0, W, H)
         for k in range(self.N):
             col_k = self.colors[k] if self.colors is not None else None
             for si, j in enumerate(subs):
                 a = (si + 1) / len(subs)
                 x1, y1, x2, y2 = self.xy[j, k]
-                P0 = self.cam.to_px(0.0, 0.0, W, H)
                 P1 = self.cam.to_px(x1, y1, W, H)
                 P2 = self.cam.to_px(x2, y2, W, H)
                 rod = palettes.hex_to_rgb(s.rod_color) if col_k is None else col_k
-                rw = max(1, int(s.rod_width * ss * (0.45 if many else 1.0)))
-                ra = int(255 * a * (0.55 if many else 0.95))
+                rw = max(1, int(round(s.rod_width * ss * (0.5 if many else 1.0))))
+                ra = int(255 * a * (0.5 if many else 1.0))
                 d.line([P0, P1, P2], fill=_rgb255(rod) + (ra,), width=rw, joint="curve")
                 if many:
                     continue
-                b1 = palettes.hex_to_rgb(s.bob_colors[0]) if col_k is None else col_k
-                b2 = palettes.hex_to_rgb(s.bob_colors[1]) if col_k is None else col_k
-                for P, c, rr in ((P1, b1, 0.8), (P2, b2, 1.0)):
+                for P, c, rr in ((P1, s.bob_colors[0], 0.72), (P2, s.bob_colors[1], 1.0)):
+                    cc = palettes.hex_to_rgb(c) if col_k is None else col_k
                     r = s.bob_radius * ss * rr
-                    gd.ellipse([(P[0] - 2.2 * r) / q, (P[1] - 2.2 * r) / q, (P[0] + 2.2 * r) / q,
-                                (P[1] + 2.2 * r) / q], fill=_rgb255(c) + (int(110 * a),))
-                    d.ellipse([P[0] - r, P[1] - r, P[0] + r, P[1] + r], fill=_rgb255(c) + (int(255 * a),))
-                    hr = r * 0.4
-                    d.ellipse([P[0] - hr - r * 0.25, P[1] - hr - r * 0.25, P[0] + hr - r * 0.25, P[1] + hr - r * 0.25],
-                              fill=(255, 255, 255, int(150 * a)))
-        if s.show_pivot:
-            P0 = self.cam.to_px(0.0, 0.0, W, H)
-            r = 4 * ss
-            d.ellipse([P0[0] - r, P0[1] - r, P0[0] + r, P0[1] + r], fill=(220, 228, 255, 230))
-        if not many:
+                    if halo:
+                        gd.ellipse([(P[0] - 2.4 * r) / q, (P[1] - 2.4 * r) / q, (P[0] + 2.4 * r) / q,
+                                    (P[1] + 2.4 * r) / q], fill=_rgb255(cc) + (int(90 * a * s.glow),))
+                    d.ellipse([P[0] - r, P[1] - r, P[0] + r, P[1] + r], fill=_rgb255(cc) + (int(255 * a),))
+        if halo:
             glow_layer = glow_layer.filter(ImageFilter.GaussianBlur(s.bob_radius * ss * 0.9 / q)).resize(
                 (W, H), Image.BILINEAR)
             img.paste(Image.alpha_composite(img.convert("RGBA"), glow_layer).convert(img.mode))
-            # redraw solid bobs above their halo
             d = ImageDraw.Draw(img, "RGBA")
             for k in range(self.N):
                 x1, y1, x2, y2 = self.xy[i, k]
-                for (x, y), c, rr in (((x1, y1), s.bob_colors[0], 0.8), ((x2, y2), s.bob_colors[1], 1.0)):
+                for (x, y), c, rr in (((x1, y1), s.bob_colors[0], 0.72), ((x2, y2), s.bob_colors[1], 1.0)):
                     cc = palettes.hex_to_rgb(c) if self.colors is None else self.colors[k]
                     P = self.cam.to_px(x, y, W, H)
                     r = s.bob_radius * ss * rr
                     d.ellipse([P[0] - r, P[1] - r, P[0] + r, P[1] + r], fill=_rgb255(cc) + (255,))
-                    hr = r * 0.38
-                    d.ellipse([P[0] - hr - r * 0.25, P[1] - hr - r * 0.25, P[0] + hr - r * 0.25, P[1] + hr - r * 0.25],
-                              fill=(255, 255, 255, 140))
+        if s.show_pivot:
+            r = 2.5 * ss
+            piv = palettes.hex_to_rgb(palettes.TOKENS[s.theme]["fg_3"])
+            d.ellipse([P0[0] - r, P0[1] - r, P0[0] + r, P0[1] + r], fill=_rgb255(piv) + (255,))
 
 
 _FONT_CACHE: dict = {}
@@ -428,7 +447,7 @@ def font(size: int, mono: bool = False):
     return _FONT_CACHE[key]
 
 
-def _text(img, xf, yf, text, size=16, color="#F4F7FF", mono=False, anchor="la"):
+def _text(img, xf, yf, text, size=16, color="#F2F2F2", mono=False, anchor="la"):
     d = ImageDraw.Draw(img)
     d.text((xf * img.width, yf * img.height), text, font=font(size, mono), fill=color, anchor=anchor)
 

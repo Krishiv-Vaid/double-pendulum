@@ -57,8 +57,8 @@ def _style_from_args(a, **defaults):
     from chaos_lab.rendering import raster
 
     kw = dict(defaults)
-    for k in ("palette", "trail", "glow", "particles", "camera", "background", "trail_seconds", "zoom", "seed",
-              "motion_blur"):
+    for k in ("theme", "palette", "trail", "glow", "particles", "camera", "background", "trail_seconds", "zoom",
+              "seed", "motion_blur"):
         v = getattr(a, k, None)
         if v is not None:
             kw[k] = v
@@ -81,8 +81,9 @@ def _add_style_args(p):
     from chaos_lab.rendering import palettes, raster
 
     g = p.add_argument_group("style (visual only)")
+    g.add_argument("--theme", choices=["dark", "light"], help="dark = white on black (default), light = black on white")
     g.add_argument("--palette", choices=sorted(palettes.GRADIENTS))
-    g.add_argument("--custom-palette", help="comma-separated hex colours, e.g. '#00E5FF,#FF3CAC'")
+    g.add_argument("--custom-palette", help="comma-separated hex stops, e.g. '#333333,#FFFFFF'")
     g.add_argument("--trail", choices=raster.TRAIL_MODES)
     g.add_argument("--trail-seconds", dest="trail_seconds", type=float)
     g.add_argument("--glow", type=float)
@@ -144,7 +145,7 @@ def cmd_art(a):
     from chaos_lab.exports import studio
 
     cfg = _cfg_from_args(a)
-    style = _style_from_args(a, trail="exposure", palette="plasma", glow=0.9, show_pendulum=False)
+    style = _style_from_args(a, trail="exposure", glow=0.2, show_pendulum=False)
     meta = studio.render_still(cfg, a.output, style, size=a.size, save_to_gallery=a.gallery)
     print(f"wrote {meta['output']} + sidecar JSON" + (f"; gallery copy {meta['gallery']}" if a.gallery else ""))
 
@@ -186,7 +187,13 @@ def _save_map_png(arr, spec, path):
     figures.apply_theme("dark")
     fig, ax = plt.subplots(figsize=(7, 6))
     data = np.log10(np.maximum(arr, 1e-3)) if spec.observable == "first_flip" else arr
-    im = ax.imshow(data, origin="lower", cmap="plasma", extent=[*spec.theta1_range, *spec.theta2_range],
+    from chaos_lab.rendering.palettes import colormap
+
+    cmap = colormap("dark")
+    if spec.observable == "first_flip":
+        cmap = cmap.reversed()  # earlier flip = brighter
+    cmap.set_bad("#000000")  # never flips = black
+    im = ax.imshow(data, origin="lower", cmap=cmap, extent=[*spec.theta1_range, *spec.theta2_range],
                    interpolation="nearest", aspect="auto")
     cb = fig.colorbar(im, ax=ax)
     cb.set_label("log10 first-flip time [s]" if spec.observable == "first_flip" else spec.observable)

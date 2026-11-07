@@ -87,8 +87,8 @@ def tag(img, text, size=13):
     f = raster.font(size)
     w = d.textlength(text, font=f)
     x, y = 14, img.height - size - 22
-    d.rounded_rectangle([x - 8, y - 6, x + w + 8, y + size + 8], radius=8, fill=(16, 21, 34, 210),
-                        outline=(35, 44, 66, 255))
+    d.rounded_rectangle([x - 8, y - 6, x + w + 8, y + size + 8], radius=6, fill=(14, 14, 14, 220),
+                        outline=(38, 38, 38, 255))
     d.text((x, y), text, font=f, fill=TOK["text_2"])
     return img
 
@@ -174,8 +174,8 @@ def ensemble_xy(b, p):
 def hero():
     cfg = SimConfig(Physical(), Initial(160, 20), Numerics(t_max=9), "Hero Chaos")
     r = run(cfg, 1 / 120)
-    R = pend_renderer(r, (520, 520), palette="rainbow", trail="fade", trail_seconds=4.0, glow=1.0,
-                      trail_width=2.6, bob_radius=10)
+    R = pend_renderer(r, (520, 520), trail="fade", trail_seconds=4.0, glow=0.25,
+                      trail_width=2.0, bob_radius=8)
     fps = 18
     frames = []
     for i in frame_indices(r.t, fps):
@@ -194,18 +194,18 @@ def butterfly():
     n, eps = 8, 1e-4
     b = ensemble.butterfly(cfg, n=n, epsilon=eps, variable="theta1", threshold=0.5)
     p = cfg.physical
-    cols = palettes.distinct(n, "rainbow")
+    cols = palettes.distinct(n)
     R = raster.PendulumRenderer(b["t"], ensemble_xy(b, p), raster.Style(width=400, height=400, trail="fade",
-                                trail_seconds=1.0, glow=0.6, rod_width=2.2), raster.world_extent(1, 1), colors=cols)
+                                trail_seconds=1.0, glow=0.0, rod_width=2.2), raster.world_extent(1, 1), colors=cols)
     P = Plot(440, 400)
     ax = P.axes[0]
     t = b["t"]
     sep = b["separation"]
     for k in range(1, n):
-        ax.semilogy(t, np.maximum(sep[:, k], 1e-12), color="#2A3348", lw=1)
+        ax.semilogy(t, np.maximum(sep[:, k], 1e-12), color=TOK["fg_4"], lw=1)
     ax.semilogy(t, np.maximum(b["numerical_control"], 1e-16), color=TOK["text_2"], lw=1, ls=":",
                 label="numerical control (dt vs dt/2)")
-    ax.axhline(b["threshold"], color=TOK["gold"], lw=1, ls="--", label="divergence threshold")
+    ax.axhline(b["threshold"], color=TOK["fg_2"], lw=1, ls="--", label="divergence threshold")
     lines = [ax.semilogy([], [], color=cols[k], lw=1.6)[0] for k in range(1, n)]
     head = ax.axvline(0, color=TOK["text_2"], lw=0.8, alpha=0.6)
     ax.set_ylim(1e-9, 20)
@@ -238,8 +238,8 @@ def swarm():
     n, eps = 100, 1e-4
     b = ensemble.butterfly(cfg, n=n, epsilon=eps, variable="theta2", numerical_control=False)
     R = raster.PendulumRenderer(b["t"], ensemble_xy(b, cfg.physical), raster.Style(width=360, height=360,
-                                trail="fade", trail_seconds=0.35, glow=0.45, trail_width=1.2),
-                                raster.world_extent(1, 1), colors=palettes.distinct(n, "rainbow"))
+                                trail="fade", trail_seconds=0.35, glow=0.0, trail_width=1.2),
+                                raster.world_extent(1, 1), colors=palettes.distinct(n))
     fps = 10
     frames = []
     for i in frame_indices(b["t"], fps):
@@ -257,7 +257,7 @@ def long_exposure():
     cfg = presets.get("long_exposure")["config"].with_(**{"numerics.t_max": 45})
     r = run(cfg, 1 / 240)
     speed, fps = 4.0, 20
-    R = pend_renderer(r, (500, 500), palette="plasma", trail="exposure", glow=0.9, trail_width=1.6)
+    R = pend_renderer(r, (500, 500), trail="exposure", glow=0.15, trail_width=1.6)
     frames = []
     for i in frame_indices(r.t, fps, speed):
         im = R.render(i)
@@ -275,20 +275,20 @@ def energy():
     r = run(cfg, 1 / 240)
     e = r.energy
     err = r.relative_energy_error
-    R = pend_renderer(r, (440, 440), palette="cyan", trail="fade", trail_seconds=2.0, glow=0.7)
+    R = pend_renderer(r, (440, 440), trail="fade", trail_seconds=2.0, glow=0.0)
     P = Plot(500, 440, 2, 1, sharex=True)
     a1, a2 = P.axes
     t = r.t
     for arr in (e["T"], e["V"], e["E"]):  # full-run backdrop curves
-        a1.plot(t, arr, color="#222B40", lw=1)
-    lT, = a1.plot([], [], color=TOK["cyan"], lw=1.5, label="kinetic T")
-    lV, = a1.plot([], [], color=TOK["pink"], lw=1.5, label="potential V")
-    lE, = a1.plot([], [], color=TOK["green"], lw=1.8, label="total E")
+        a1.plot(t, arr, color=TOK["fg_4"], lw=1)
+    lT, = a1.plot([], [], color=TOK["fg_2"], lw=1.2, label="kinetic T")
+    lV, = a1.plot([], [], color=TOK["fg_3"], lw=1.2, ls="--", label="potential V")
+    lE, = a1.plot([], [], color=TOK["fg"], lw=2.0, label="total E")
     a1.set_ylabel("energy [J]")
     a1.legend(loc="upper right", ncol=3)
     a1.set_title("Energy (RK4, dt = 1 ms)")
-    a2.plot(t, err, color="#222B40", lw=1)
-    lErr, = a2.plot([], [], color=TOK["gold"], lw=1.4)
+    a2.plot(t, err, color=TOK["fg_4"], lw=1)
+    lErr, = a2.plot([], [], color=TOK["fg"], lw=1.4)
     a2.set_ylabel(r"$(E-E_0)/|E_0|$")
     a2.set_xlabel("time [s]")
     a2.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
@@ -316,19 +316,19 @@ def phase_space():
     cfg = SimConfig(Physical(), Initial(100, 60), Numerics(t_max=24), "Phase Space")
     r = run(cfg, 1 / 120)
     speed, fps = 2.0, 15
-    R = pend_renderer(r, (420, 420), palette="purple", trail="fade", trail_seconds=2.0, glow=0.7)
+    R = pend_renderer(r, (420, 420), trail="fade", trail_seconds=2.0, glow=0.0)
     P = Plot(560, 420, 1, 2)
     t = r.t
     th1, th2 = physics.wrap_angle(r.y[:, 0]), physics.wrap_angle(r.y[:, 1])
     w1, w2 = r.y[:, 2], r.y[:, 3]
     arts = []
-    for ax, th, w, c, name in ((P.axes[0], th1, w1, TOK["cyan"], "1"), (P.axes[1], th2, w2, TOK["pink"], "2")):
+    for ax, th, w, c, name in ((P.axes[0], th1, w1, TOK["fg"], "1"), (P.axes[1], th2, w2, TOK["fg_2"], "2")):
         ax.set_xlim(-np.pi, np.pi)
         ax.set_ylim(w.min() * 1.1, w.max() * 1.1)
         ax.set_xlabel(rf"$\theta_{name}$ [rad] (wrapped)")
         ax.set_ylabel(rf"$\omega_{name}$ [rad/s]")
         ax.set_title(rf"$\theta_{name}$ vs $\omega_{name}$")
-        sc = ax.scatter([], [], s=1.2, c=[], cmap="plasma", vmin=0, vmax=t[-1])
+        sc = ax.scatter([], [], s=1.2, c=[], cmap=palettes.colormap("dark"), vmin=0, vmax=t[-1])
         hd, = ax.plot([], [], "o", color=c, ms=6)
         arts.append((sc, hd, th, w))
     P.fig.tight_layout()
@@ -361,10 +361,10 @@ def poincare_gif():
     cfg = SimConfig(p, Initial(np.degrees(y0[0]), np.degrees(y0[1]), y0[2], y0[3]),
                     Numerics(method="dop853", t_max=12, rtol=1e-10, atol=1e-10), "Poincaré focus")
     r = run(cfg, 1 / 120)
-    R = pend_renderer(r, (420, 420), palette="gold", trail="fade", trail_seconds=1.5, glow=0.7)
+    R = pend_renderer(r, (420, 420), trail="fade", trail_seconds=1.5, glow=0.0)
     P = Plot(480, 420)
     ax = P.axes[0]
-    cols = palettes.distinct(len(ics), "rainbow")
+    cols = palettes.distinct(len(ics))
     for k, s in enumerate(secs):
         if k != focus:
             ax.scatter(s["theta2"], s["omega2"], s=2.5, color=cols[k], alpha=0.5, lw=0)
@@ -414,8 +414,8 @@ def map_image(arr, spec, title, vmax=None, size=(520, 520), progress=None):
     ax = P.axes[0]
     finite = arr[np.isfinite(arr)]
     vmax = vmax or (np.nanmax(finite) if finite.size else 1)
-    cmap = matplotlib.colors.LinearSegmentedColormap.from_list("cl", palettes.sample("plasma", np.linspace(0, 1, 256)))
-    cmap.set_bad(TOK["panel"])
+    cmap = palettes.colormap("dark").reversed()  # earlier flip = brighter; slow = dim
+    cmap.set_bad(TOK["bg"])  # never flips = black
     with np.errstate(invalid="ignore"):
         shown = np.log10(np.maximum(arr, 1e-3))
     ax.imshow(shown, origin="lower", cmap=cmap, vmin=np.log10(0.3), vmax=np.log10(vmax), interpolation="nearest",
@@ -442,10 +442,10 @@ def chaos_map():
     for a in range(0, spec.ny, rows):
         b = min(a + rows, spec.ny)
         arr[a:b] = maps.compute_rows(spec, a, b)
-        frames.append(map_image(arr, spec, "Time to first flip (log colour; dark = no flip in 10 s)", 10.0,
+        frames.append(map_image(arr, spec, "First flip · brighter = sooner · black = none in 10 s", 10.0,
                                 progress=f"computing rows {b}/{spec.ny}"))
     elapsed = time.perf_counter() - t0
-    final = map_image(arr, spec, "Time to first flip (log colour; dark = no flip in 10 s)", 10.0)
+    final = map_image(arr, spec, "First flip · brighter = sooner · black = none in 10 s", 10.0)
     frames += [final] * 25
     return write("chaos-map", fade(frames, n_in=2), 12,
                  {"map_spec": spec.to_dict(), "serial_compute_s": elapsed,
@@ -474,7 +474,7 @@ def fractal_zoom():
         spec = maps.MapSpec(nx=200, ny=200, t_max=10.0, dt=0.005, theta1_range=(c1 - span / 2, c1 + span / 2),
                             theta2_range=(c2 - span / 2, c2 + span / 2))
         arr = maps.compute_map(spec, workers=8)
-        img = map_image(arr, spec, f"First-flip map · zoom ×{360 / span:,.0f} (recomputed)", 10.0,
+        img = map_image(arr, spec, f"First-flip map · zoom ×{360 / span:,.0f} · recomputed", 10.0,
                         progress=f"level {k + 1}/{levels}  span {span:.2f}°")
         frames += [img] * 2
     frames += [frames[-1]] * 14
@@ -489,24 +489,25 @@ def fractal_zoom():
 @gen("integrator-comparison")
 def integrators():
     base = SimConfig(Physical(), Initial(178, 180), Numerics(t_max=12), "Integrator Showdown")
-    settings = [("RK4 dt=0.01", {"numerics.method": "rk4", "numerics.dt": 0.01}, TOK["pink"]),
+    settings = [("RK4 dt=0.01", {"numerics.method": "rk4", "numerics.dt": 0.01}, TOK["fg_3"]),
                 ("RK45 rtol=1e-6", {"numerics.method": "rk45", "numerics.rtol": 1e-6, "numerics.atol": 1e-9},
-                 TOK["gold"]),
+                 TOK["fg_2"]),
                 ("DOP853 rtol=1e-10", {"numerics.method": "dop853", "numerics.rtol": 1e-10, "numerics.atol": 1e-10},
-                 TOK["cyan"])]
+                 TOK["fg"])]
     runs = [(lab, run(base.with_(**ch), 0.01), c) for lab, ch, c in settings]
     t = runs[0][1].t
     xy = np.stack([np.stack(r.positions, axis=-1) for _, r, _ in runs], axis=1)
     cols = np.array([palettes.hex_to_rgb(c) for *_, c in runs])
     R = raster.PendulumRenderer(t, xy, raster.Style(width=420, height=420, trail="fade", trail_seconds=1.5,
-                                glow=0.6), raster.world_extent(1, 1), colors=cols)
+                                glow=0.0), raster.world_extent(1, 1), colors=cols)
     P = Plot(500, 420)
     ax = P.axes[0]
     lines = []
     for lab, r, c in runs:
         err = np.maximum(np.abs(r.relative_energy_error), 1e-16)
-        ax.semilogy(t, err, color="#222B40", lw=1)
-        lines.append((ax.semilogy([], [], color=c, lw=1.5, label=f"{lab}  (nfev {r.nfev})")[0], err))
+        ax.semilogy(t, err, color=TOK["fg_4"], lw=1)
+        style = {TOK["fg_3"]: ":", TOK["fg_2"]: "--"}.get(c, "-")
+        lines.append((ax.semilogy([], [], color=c, ls=style, lw=1.5, label=f"{lab}  (nfev {r.nfev})")[0], err))
     ax.set_ylim(1e-14, 1)
     ax.set_xlim(0, t[-1])
     ax.set_xlabel("time [s]")
@@ -538,8 +539,7 @@ def double_flip():
     cfg = presets.get("double_flip")["config"].with_(**{"numerics.t_max": 10})
     r = run(cfg, 1 / 120)
     ev = events.flip_events(r.t, r.y)
-    R = pend_renderer(r, (500, 500), palette="fire", trail="dual", trail_seconds=2.0, glow=1.0, particles="burst",
-                      particle_count=300)
+    R = pend_renderer(r, (500, 500), trail="dual", trail_seconds=2.0, glow=0.0)
     fps = 20
     frames = []
     for i in frame_indices(r.t, fps):
@@ -547,7 +547,7 @@ def double_flip():
         n2 = sum(1 for e in ev if e["arm"] == 2 and e["t"] <= r.t[i])
         im = R.render(i)
         label(im, f"t = {r.t[i]:5.2f} s", size=13, color=TOK["text_2"])
-        label(im, f"upper flips {n1}   lower flips {n2}", (0.965, 0.035), size=13, color=TOK["gold"], anchor="ra")
+        label(im, f"upper flips {n1}   lower flips {n2}", (0.965, 0.035), size=13, color=TOK["fg_2"], anchor="ra")
         frames.append(im)
     return write("double-flip", fade(frames), fps, {"config": cfg, "flip_events": ev, "playback_speed": 1.0})
 
@@ -561,13 +561,13 @@ def slow_motion():
     i_peak = int(np.argmax(np.max(np.abs(r.y[:, 2:]), axis=1)))
     tp = r.t[i_peak]
     speed, fps = 0.2, 20
-    R = pend_renderer(r, (500, 500), palette="ice", trail="velocity", trail_seconds=0.8, glow=1.0, motion_blur=3)
+    R = pend_renderer(r, (500, 500), trail="velocity", trail_seconds=0.8, glow=0.0, motion_blur=3)
     frames = []
     for i in frame_indices(r.t, fps, speed, max(0, tp - 0.6), min(r.t[-1], tp + 0.6)):
         im = R.render(i)
         w = np.max(np.abs(r.y[i, 2:]))
         label(im, f"t = {r.t[i]:6.3f} s", size=13, color=TOK["text_2"])
-        label(im, f"max|ω| = {w:5.1f} rad/s", (0.965, 0.035), size=13, color=TOK["cyan"], anchor="ra")
+        label(im, f"max|ω| = {w:5.1f} rad/s", (0.965, 0.035), size=13, color=TOK["fg"], anchor="ra")
         tag(im, f"{speed:g}× slow motion · DOP853 samples every 1 ms")
         frames.append(im)
     return write("slow-motion", fade(frames), fps, {"config": cfg, "playback_speed": speed, "peak_time_s": tp,
@@ -575,10 +575,9 @@ def slow_motion():
 
 
 # ---------------------------------------------------------------------------- multi-panel helper
-def panels(cfgs, labels, name, t_max, meta, fps=15, size=340, palette_list=None, speed=1.0, trail="fade"):
+def panels(cfgs, labels, name, t_max, meta, fps=15, size=340, speed=1.0, trail="fade"):
     runs = [run(c.with_(**{"numerics.t_max": t_max}), 1 / 120) for c in cfgs]
-    pals = palette_list or ["cyan", "magenta", "gold", "plasma"]
-    Rs = [pend_renderer(r, (size, size), palette=pals[k % len(pals)], trail=trail, trail_seconds=2.0, glow=0.75,
+    Rs = [pend_renderer(r, (size, size), trail=trail, trail_seconds=2.0, glow=0.0,
                         bob_radius=7, rod_width=2.4) for k, r in enumerate(runs)]
     frames = []
     for i in frame_indices(runs[0].t, fps, speed):
@@ -601,7 +600,7 @@ def regular_vs_chaotic():
     lb = lyapunov.double_pendulum_lyapunov(b, 40.0).lam
     return panels([a, b], [f"regular · λ ≈ {la:.2f} s⁻¹", f"chaotic · λ ≈ {lb:.2f} s⁻¹"], "regular-vs-chaotic", 14,
                   {"lyapunov_40s": [la, lb], "note": "Finite-time Lyapunov estimates over 40 s (tangent method)."},
-                  size=380, palette_list=["ice", "fire"], trail="time")
+                  size=380, trail="time")
 
 
 @gen("gravity-comparison")
@@ -616,8 +615,7 @@ def gravity():
 def mass_ratio():
     ratios = [0.25, 1.0, 4.0]
     cfgs = [SimConfig(Physical(m1=1.0, m2=q), Initial(140, 30), Numerics(t_max=10), f"m2/m1={q}") for q in ratios]
-    return panels(cfgs, [f"m2/m1 = {q:g}" for q in ratios], "mass-ratio", 10, {"ratios": ratios},
-                  palette_list=["magenta", "purple", "cyan"])
+    return panels(cfgs, [f"m2/m1 = {q:g}" for q in ratios], "mass-ratio", 10, {"ratios": ratios})
 
 
 # ---------------------------------------------------------------------------- 16/17 forced
@@ -625,19 +623,19 @@ def forced_gif(name, cfg, title, t_max, show_drive):
     r = run(cfg.with_(**{"numerics.t_max": t_max, "numerics.method": "dop853", "numerics.rtol": 1e-10,
                          "numerics.atol": 1e-10}), 1 / 120)
     e = r.energy
-    R = pend_renderer(r, (420, 420), palette="fire" if show_drive else "ice", trail="fade", trail_seconds=2.5,
-                      glow=0.8)
+    R = pend_renderer(r, (420, 420), trail="fade", trail_seconds=2.5,
+                      glow=0.0)
     P = Plot(500, 420)
     ax = P.axes[0]
     t = r.t
-    series = [(e["E"], TOK["green"], "total energy E")]
+    series = [(e["E"], TOK["fg"], "total energy E")]
     if show_drive:
-        series.append((e["E"][0] + e["W_drive"], TOK["gold"], "E0 + work by drive"))
+        series.append((e["E"][0] + e["W_drive"], TOK["fg_2"], "E0 + work by drive"))
     series.append((e["E"][0] - e["W_damp"] + (e["W_drive"] if show_drive else 0), TOK["text_2"],
                    "E0 + W_drive − W_damp (balance)"))
     lines = []
     for arr, c, lab in series:
-        ax.plot(t, arr, color="#222B40", lw=1)
+        ax.plot(t, arr, color=TOK["fg_4"], lw=1)
         lines.append((ax.plot([], [], color=c, lw=1.6 if "balance" not in lab else 1.0,
                               ls="-" if "balance" not in lab else "--", label=lab)[0], arr))
     ax.set_xlim(0, t[-1])
@@ -687,20 +685,20 @@ def lyapunov_growth():
     t = r.t
     xy = np.stack([np.stack(r.positions, -1), np.stack(rb.positions, -1)], axis=1)
     R = raster.PendulumRenderer(t, xy, raster.Style(width=420, height=420, trail="fade", trail_seconds=1.5,
-                                glow=0.7), raster.world_extent(1, 1),
-                                colors=np.array([palettes.hex_to_rgb(TOK["cyan"]), palettes.hex_to_rgb(TOK["pink"])]))
+                                glow=0.0), raster.world_extent(1, 1),
+                                colors=np.array([palettes.hex_to_rgb(TOK["fg"]), palettes.hex_to_rgb(TOK["fg_2"])]))
     P = Plot(500, 420, 2, 1, sharex=True)
     a1, a2 = P.axes
-    a1.semilogy(t, sep, color="#222B40")
-    a1.semilogy(t, d0 * np.exp(L.lam * t), color=TOK["gold"], ls="--", lw=1,
+    a1.semilogy(t, sep, color=TOK["fg_4"])
+    a1.semilogy(t, d0 * np.exp(L.lam * t), color=TOK["fg_2"], ls="--", lw=1,
                 label=rf"$d_0 e^{{\lambda t}}$, λ={L.lam:.2f}/s")
-    ls, = a1.semilogy([], [], color=TOK["pink"], lw=1.5, label="separation (no renormalization)")
+    ls, = a1.semilogy([], [], color=TOK["fg"], lw=1.5, label="separation (no renormalization)")
     a1.set_ylabel("separation")
     a1.set_ylim(1e-9, 20)
     a1.legend(loc="lower right")
     a1.set_title(rf"Perturbation growth, $d_0$ = {d0:g}")
-    a2.plot(L.t, L.running, color="#222B40")
-    lr, = a2.plot([], [], color=TOK["green"], lw=1.5)
+    a2.plot(L.t, L.running, color=TOK["fg_4"])
+    lr, = a2.plot([], [], color=TOK["fg"], lw=1.5)
     a2.set_ylabel(r"running $\lambda$ [1/s]")
     a2.set_xlabel("time [s]")
     a2.set_ylim(0, max(2.0, float(np.max(L.running[5:])) * 1.1))
@@ -732,7 +730,7 @@ def parameter_morph():
         cfgs.append(cfg)
         r = run(cfg, 1 / 120)
         R = raster.PendulumRenderer(r.t, raster.xy_from_result(r), raster.Style(
-            width=460, height=460, trail="exposure", palette="plasma", glow=0.9, trail_width=1.4,
+            width=460, height=460, trail="exposure", glow=0.15, trail_width=1.4,
             show_pendulum=False), raster.world_extent(1.0, 1.4))
         for i in range(0, len(r.t), 60):
             img = R.render(i)
@@ -763,18 +761,18 @@ def showcase():
 
     clips += title("CHAOS LAB ULTRA", "Two pendulums. Infinite possibilities.")
     r = run(SimConfig(initial=Initial(160, 20), numerics=Numerics(t_max=5)), 1 / 120)
-    R = pend_renderer(r, (size, size), palette="rainbow", trail="time", trail_seconds=4, glow=1.0)
+    R = pend_renderer(r, (size, size), trail="time", trail_seconds=4, glow=0.0)
     clips += [R.render(i) for i in frame_indices(r.t, fps)]
     clips += title("Butterfly effect", "100 pendulums, 0.0001 rad apart")
     cfg = SimConfig(Physical(), Initial(150, 150), Numerics(t_max=9, dt=2e-3, output_dt=1 / 60))
     b = ensemble.butterfly(cfg, n=100, epsilon=1e-4, variable="theta2", numerical_control=False)
     R = raster.PendulumRenderer(b["t"], ensemble_xy(b, cfg.physical), raster.Style(width=size, height=size,
-                                trail="fade", trail_seconds=0.7, glow=0.55, trail_width=1.3),
+                                trail="fade", trail_seconds=0.7, glow=0.0, trail_width=1.3),
                                 raster.world_extent(1, 1), colors=palettes.distinct(100))
     clips += [R.render(i) for i in frame_indices(b["t"], fps, 1.0, 3.0)]
     clips += title("Light painting", "40 seconds of motion, 8× speed")
     r = run(SimConfig(initial=Initial(90, 90), numerics=Numerics(t_max=40)), 1 / 120)
-    R = pend_renderer(r, (size, size), palette="plasma", trail="exposure", glow=0.9, trail_width=1.5)
+    R = pend_renderer(r, (size, size), trail="exposure", glow=0.15, trail_width=1.5)
     clips += [R.render(i) for i in frame_indices(r.t, fps, 8.0)]
     clips += title("Explore the mathematics of chaos", "python -m chaos_lab")
     return write("cinematic-showcase", fade(clips), fps, {"note": "Montage of independent verified simulations."})
@@ -788,8 +786,8 @@ def video_hero():
 
     cfg = SimConfig(Physical(), Initial(160, 20), Numerics(t_max=20), "Hero video")
     out = ROOT / "assets" / "videos" / "hero-chaos-720p.mp4"
-    meta = studio.render_animation(cfg, out, raster.Style(width=1280, height=720, palette="rainbow", trail="fade",
-                                                          trail_seconds=5.0, glow=1.0), fps=30, quality="medium",
+    meta = studio.render_animation(cfg, out, raster.Style(width=1280, height=720, trail="fade",
+                                                          trail_seconds=5.0, glow=0.0), fps=30, quality="medium",
                                    title="Chaos Lab Ultra", show_params=True)
     print(f"  {out.name}  {meta['frames']} frames  {out.stat().st_size / 1e6:.2f} MB")
 

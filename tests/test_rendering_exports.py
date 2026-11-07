@@ -21,12 +21,22 @@ def _result():
 
 
 def test_palette_sampling_and_tokens():
-    c = palettes.sample("rainbow", [0, 0.5, 1])
+    c = palettes.sample("white", [0, 0.5, 1])
     assert c.shape == (3, 3) and np.all((0 <= c) & (c <= 1))
-    assert np.allclose(palettes.sample("mono", 0), palettes.hex_to_rgb("#5A6378"))
+    assert np.allclose(palettes.sample("gray", [0, 1]), [[0, 0, 0], [1, 1, 1]])
+    # strictly monochrome: every token and every gradient stop is a grey (r == g == b)
+    for theme in palettes.TOKENS.values():
+        for h in theme.values():
+            r, g, b = palettes.hex_to_rgb(h)
+            assert r == g == b, h
+    for stops in palettes.GRADIENTS.values():
+        for _, h in stops:
+            r, g, b = palettes.hex_to_rgb(h)
+            assert r == g == b, h
+    assert np.allclose(palettes.distinct(5)[:, 0], palettes.distinct(5)[:, 2])
     custom = palettes.custom_gradient(["#000000", "#FFFFFF"])
     assert np.allclose(palettes.sample(custom, 0.5), [0.5, 0.5, 0.5], atol=0.01)
-    assert "--bg: #070910;" in palettes.tokens_css("dark")
+    assert "--bg: #000000;" in palettes.tokens_css("dark")
     with pytest.raises(ValueError):
         palettes.custom_gradient(["#000000"])
 
@@ -158,3 +168,14 @@ def test_original_cli_output_unchanged():
     assert "Steps: 7500, dt = 0.004" in out.stdout
     assert "E0 = 0.1490359430 J" in out.stdout
     assert "Max |ΔE/E0| = 8.844e-05" in out.stdout
+
+
+def test_light_theme_draws_ink_on_white():
+    r = _result()
+    R = studio.make_renderer(r, raster.Style(width=96, height=96, theme="light"))
+    for i in range(0, 120, 10):
+        im = R.render(i)
+    a = np.asarray(im)
+    assert a[0, 0].tolist() == [255, 255, 255]  # white background
+    assert a.min() < 60  # dark marks drawn
+    assert np.all(a[..., 0] == a[..., 2])  # no hue

@@ -47,14 +47,22 @@ class Result:
 
     @cached_property
     def relative_energy_error(self) -> np.ndarray:
-        """Conservative runs: (E - E0)/|E0|.
-        Forced runs: energy-balance residual / characteristic energy, because
-        E itself legitimately changes (and E0 may be ~0)."""
+        """Conservative runs: (E - E0)/|E0|, except when |E0| is tiny compared with
+        the characteristic energy (e.g. a 90°/90° start at rest has E0 = 0 exactly),
+        where dividing by E0 would explode; then the characteristic energy is used.
+        Forced runs: energy-balance residual / characteristic energy, because E
+        itself legitimately changes."""
         e = self.energy
         if self.p.has_forcing:
             return e["balance_error"] / self.energy_scale
-        scale = max(abs(e["E"][0]), 1e-12 * self.energy_scale)
-        return (e["E"] - e["E"][0]) / scale
+        return (e["E"] - e["E"][0]) / self.energy_reference
+
+    @property
+    def energy_reference(self) -> float:
+        """Denominator of the relative energy error (J): |E0|, or the characteristic
+        energy when |E0| < 1e-3 of it."""
+        e0 = abs(float(self.energy["E"][0]))
+        return e0 if e0 >= 1e-3 * self.energy_scale else self.energy_scale
 
     @property
     def energy_scale(self) -> float:
