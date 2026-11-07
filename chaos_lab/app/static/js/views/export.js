@@ -1,7 +1,7 @@
 // Export Studio: frame-exact video/GIF export, image sequences, data and sharing.
 
 import { api, download } from "../api.js";
-import { token } from "../palettes.js";
+import { DASHES, isLight, token } from "../palettes.js";
 import { PendulumRenderer } from "../renderer.js";
 import { runSimulation } from "../sim.js";
 import { bus, encodeShare, lerpAt, state } from "../state.js";
@@ -89,7 +89,11 @@ export function mount(root) {
     const sc = document.createElement("canvas");
     sc.width = pw; sc.height = H;
     const r = new PendulumRenderer(sc, { fixedSize: [pw, H] });
-    const v = { ...state.visual, hud: false, background: state.visual.background === "theme" || state.visual.background === "transparent" ? "space" : state.visual.background };
+    const bgName = state.visual.background === "white" || ((state.visual.background === "theme" || state.visual.background === "transparent") && isLight()) ? "white" : "black";
+    const light = bgName === "white";
+    const ink = light ? { bg: "#ffffff", fg: "#000000", fg2: "#4a4a4a", fg3: "#8f8f8f", border: "#dadada" }
+      : { bg: "#000000", fg: "#ffffff", fg2: "#b0b0b0", fg3: "#6b6b6b", border: "#262626" };
+    const v = { ...state.visual, hud: false, background: bgName };
     v.trailWidth = (v.trailWidth || 2) * Math.max(1, Math.min(pw, H) / 720);
     r.setVisual(v);
     r.setBodies([state.sim]);
@@ -101,30 +105,30 @@ export function mount(root) {
       frame(t, dtFrame) {
         r.dpr = Math.max(1, Math.min(pw, H) / 700);
         r.draw(t, dtFrame);
-        ctx.fillStyle = "#070910"; ctx.fillRect(0, 0, W, H);
+        ctx.fillStyle = ink.bg; ctx.fillRect(0, 0, W, H);
         ctx.drawImage(sc, 0, 0);
         const fi = t / s.dt;
         ctx.textBaseline = "top";
-        if (title.input.value) { ctx.fillStyle = "#f4f7ff"; ctx.font = `700 ${Math.round(46 * u)}px Inter, system-ui, -apple-system, sans-serif`; ctx.fillText(title.input.value, 40 * u, 36 * u); }
-        if (opts.timecode) { ctx.fillStyle = "#f4f7ff"; ctx.font = `${Math.round(28 * u)}px ui-monospace, Menlo, monospace`; ctx.fillText(`t = ${t.toFixed(2)} s${speed.get() !== 1 ? `  (${fmtSig(1 / speed.get(), 3)}× slow-mo)` : ""}`, 40 * u, (title.input.value ? 96 : 36) * u); }
+        if (title.input.value) { ctx.fillStyle = ink.fg; ctx.font = `700 ${Math.round(46 * u)}px Inter, system-ui, -apple-system, sans-serif`; ctx.fillText(title.input.value, 40 * u, 36 * u); }
+        if (opts.timecode) { ctx.fillStyle = ink.fg; ctx.font = `${Math.round(28 * u)}px ui-monospace, Menlo, monospace`; ctx.fillText(`t = ${t.toFixed(2)} s${speed.get() !== 1 ? `  (${fmtSig(1 / speed.get(), 3)}× slow-mo)` : ""}`, 40 * u, (title.input.value ? 96 : 36) * u); }
         if (opts.params) {
           const c = s.config, p = c.physical;
           const lines = [`θ₁(0)=${c.initial.theta1_deg}°  θ₂(0)=${c.initial.theta2_deg}°`, `m=${p.m1}/${p.m2} kg  L=${p.L1}/${p.L2} m  g=${p.g} m/s²`, `${c.numerics.method.toUpperCase()}  E=${lerpAt(s.E, fi).toFixed(4)} J`];
-          ctx.fillStyle = "rgba(149,163,186,0.95)"; ctx.font = `${Math.round(22 * u)}px ui-monospace, Menlo, monospace`;
+          ctx.fillStyle = ink.fg2; ctx.font = `${Math.round(22 * u)}px ui-monospace, Menlo, monospace`;
           lines.forEach((l, i) => ctx.fillText(l, 40 * u, pw === W ? H - (40 + (lines.length - i) * 30) * u : H - (40 + (lines.length - i) * 30) * u));
         }
-        if (opts.stamp) { ctx.fillStyle = "rgba(100,113,138,0.9)"; ctx.font = `${Math.round(16 * u)}px ui-monospace, monospace`; ctx.textAlign = "right"; ctx.fillText(`Chaos Lab Ultra · ${s.digest}`, pw - 24 * u, H - 34 * u); ctx.textAlign = "left"; }
-        if (graph || opts.graph) drawGraph(ctx, graph ? [pw, 0, W - pw, H] : [W - 0.36 * W - 24 * u, 24 * u, 0.36 * W, 0.26 * H], t, u);
+        if (opts.stamp) { ctx.fillStyle = ink.fg3; ctx.font = `${Math.round(16 * u)}px ui-monospace, monospace`; ctx.textAlign = "right"; ctx.fillText(`Chaos Lab Ultra · ${s.digest}`, pw - 24 * u, H - 34 * u); ctx.textAlign = "left"; }
+        if (graph || opts.graph) drawGraph(ctx, graph ? [pw, 0, W - pw, H] : [W - 0.36 * W - 24 * u, 24 * u, 0.36 * W, 0.26 * H], t, u, ink);
         return out;
       },
     };
   }
 
-  function drawGraph(ctx, [x, y, w, hh], t, u) {
+  function drawGraph(ctx, [x, y, w, hh], t, u, ink) {
     const s = state.sim;
     ctx.save();
-    ctx.fillStyle = "rgba(16,21,34,0.92)"; ctx.fillRect(x, y, w, hh);
-    ctx.strokeStyle = "#222b40"; ctx.strokeRect(x + 0.5, y + 0.5, w - 1, hh - 1);
+    ctx.fillStyle = ink.bg; ctx.fillRect(x, y, w, hh);
+    ctx.strokeStyle = ink.border; ctx.strokeRect(x + 0.5, y + 0.5, w - 1, hh - 1);
     const pad = 28 * u, half = (hh - 3 * pad) / 2;
     const plot = (oy, arrs, cols, label, sym) => {
       let lo = Infinity, hi = -Infinity;
@@ -132,18 +136,18 @@ export function mount(root) {
       if (sym) { const m = Math.max(Math.abs(lo), Math.abs(hi)) || 1; lo = -m; hi = m; }
       if (hi === lo) { hi += 1; lo -= 1; }
       const X = (tt) => x + pad + (tt / s.tEnd) * (w - 2 * pad), Y = (v) => oy + half - ((v - lo) / (hi - lo)) * half;
-      ctx.fillStyle = "#95a3ba"; ctx.font = `${Math.round(18 * u)}px Inter, system-ui, -apple-system, sans-serif`; ctx.fillText(label, x + pad, oy - 22 * u);
+      ctx.fillStyle = ink.fg2; ctx.font = `${Math.round(18 * u)}px Inter, system-ui, -apple-system, sans-serif`; ctx.fillText(label, x + pad, oy - 22 * u);
       arrs.forEach((a, k) => {
-        ctx.strokeStyle = cols[k]; ctx.lineWidth = 2 * u; ctx.beginPath();
+        ctx.strokeStyle = cols[k]; ctx.lineWidth = 2 * u; ctx.setLineDash(arrs.length > 1 ? DASHES[k].map((d) => d * 2 * u) : []); ctx.beginPath();
         const step = Math.max(1, Math.floor(a.length / 1500));
         for (let i = 0; i < a.length; i += step) { const px = X(s.t[i]), py = Y(a[i]); i ? ctx.lineTo(px, py) : ctx.moveTo(px, py); }
         ctx.stroke();
       });
-      ctx.strokeStyle = "#f4f7ff"; ctx.globalAlpha = 0.7; ctx.beginPath(); ctx.moveTo(X(t), oy); ctx.lineTo(X(t), oy + half); ctx.stroke(); ctx.globalAlpha = 1;
+      ctx.setLineDash([]); ctx.strokeStyle = ink.fg; ctx.globalAlpha = 0.7; ctx.beginPath(); ctx.moveTo(X(t), oy); ctx.lineTo(X(t), oy + half); ctx.stroke(); ctx.globalAlpha = 1;
     };
     ctx.textBaseline = "alphabetic";
-    plot(y + pad + 10 * u, [s.T, s.V, s.E], ["#00e5ff", "#ff3cac", "#f4f7ff"], "Energy: T (cyan), V (pink), E (white) [J]");
-    plot(y + 2 * pad + half + 10 * u, [s.err], ["#39ff88"], `Energy error ${s.errKind}`, true);
+    plot(y + pad + 10 * u, [s.E, s.T, s.V], [ink.fg, ink.fg2, ink.fg3], "Energy [J]: E solid · T dashed · V dotted");
+    plot(y + 2 * pad + half + 10 * u, [s.err], [ink.fg], `Energy error ${s.errKind}`, true);
     ctx.restore();
   }
 

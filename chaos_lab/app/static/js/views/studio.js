@@ -2,7 +2,7 @@
 
 import { api, download, runJob } from "../api.js";
 import { visualControls } from "../controls.js";
-import { paletteStops, rgba, sampler } from "../palettes.js";
+import { isLight, paletteStops, rgba, sampler } from "../palettes.js";
 import { PendulumRenderer } from "../renderer.js";
 import { runSimulation, setPlaying } from "../sim.js";
 import { Stage } from "../stage.js";
@@ -22,7 +22,7 @@ export function mount(root) {
 
   // --- art generator
   const objectives = [["complexity", "High visual complexity"], ["coverage", "Maximum trail coverage"], ["symmetry", "Symmetrical-looking"],
-    ["dense", "Dense swirling motion"], ["loops", "Multiple loops"], ["sparse", "Sparse elegant patterns"], ["exposure", "Colourful long exposure"]];
+    ["dense", "Dense swirling motion"], ["loops", "Multiple loops"], ["sparse", "Sparse elegant patterns"], ["exposure", "Rich long exposure"]];
   const obj = select({ label: "Aesthetic objective", value: "complexity", options: objectives });
   const nCand = slider({ label: "Candidates", min: 8, max: 400, step: 1, value: 96, digits: 0 });
   const seed = slider({ label: "Seed", min: 0, max: 9999, step: 1, value: 1, digits: 0 });
@@ -55,10 +55,11 @@ export function mount(root) {
   function candidateCard(c) {
     const cv = h("canvas", { width: 300, height: 300, class: "thumb", style: { aspectRatio: "1" } });
     const ctx = cv.getContext("2d");
-    ctx.fillStyle = "#05070c"; ctx.fillRect(0, 0, 300, 300);
+    const light = isLight();
+    ctx.fillStyle = light ? "#fff" : "#000"; ctx.fillRect(0, 0, 300, 300);
     const R = c.config.physical.L1 + c.config.physical.L2;
-    const pal = sampler(paletteStops(state.visual.palette, state.visual.custom));
-    ctx.globalCompositeOperation = "lighter"; ctx.lineWidth = 1;
+    const pal = sampler(paletteStops(state.visual.palette, null, light));
+    ctx.globalCompositeOperation = light ? "source-over" : "lighter"; ctx.lineWidth = 1;
     const n = c.x2.length;
     for (let i = 1; i < n; i++) {
       ctx.strokeStyle = rgba(pal(i / n), 0.55);
@@ -101,8 +102,8 @@ export function mount(root) {
     const r = new PendulumRenderer(c, { fixedSize: [W, H] });
     const v = { ...state.visual, hud: false, particles: "none", camera: "static", zoom: state.visual.zoom || 1 };
     if (artTrail.get() === "exposure") v.trail = "exposure";
-    v.background = transparent ? "transparent" : (v.background === "theme" ? "space" : v.background);
-    v.rods = withPendulum; v.massGlow = withPendulum; v.showPivot = withPendulum;
+    v.background = transparent ? "transparent" : (v.background === "theme" ? (isLight() ? "white" : "black") : v.background);
+    v.rods = withPendulum; v.showPivot = withPendulum;
     if (!withPendulum) v.massSize = 0.0001;
     v.trailWidth = (v.trailWidth || 2) * Math.max(1, Math.min(W, H) / 1080);
     r.setVisual(v);
@@ -135,7 +136,8 @@ export function mount(root) {
     if (!s) return;
     const [W, H] = size.get().split("x").map(Number);
     const R = s.p.L1 + s.p.L2, sc = (Math.min(W, H) / (2 * R * 1.14)) * (state.visual.zoom || 1);
-    const pal = sampler(paletteStops(state.visual.palette, state.visual.custom));
+    const lightArt = state.visual.background === "white" || (state.visual.background !== "black" && isLight());
+    const pal = sampler(paletteStops(state.visual.palette, null, lightArt));
     const T = Math.min(s.tEnd, tEnd.get());
     const iEnd = Math.floor(T / s.dt);
     const step = Math.max(1, Math.floor(iEnd / 12000));
@@ -149,7 +151,7 @@ export function mount(root) {
     }
     const w = ((state.visual.trailWidth || 2) * Math.max(1, Math.min(W, H) / 1080)).toFixed(2);
     const paths = buckets.map((b, k) => b.length ? `<path d="${b.join("")}" stroke="${rgba(pal(k / 47), 0.8)}"/>` : "").join("\n");
-    const bg = transparent ? "" : `<rect width="100%" height="100%" fill="#070910"/>`;
+    const bg = transparent ? "" : `<rect width="100%" height="100%" fill="${lightArt ? "#ffffff" : "#000000"}"/>`;
     const svg = `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
 <!-- Chaos Lab Ultra · config digest ${s.digest} · lower-mass trajectory 0–${T.toFixed(2)} s -->

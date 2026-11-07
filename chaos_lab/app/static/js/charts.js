@@ -1,6 +1,6 @@
 // Minimal, fast canvas charts that follow the theme tokens.
 
-import { colormapLUT, token } from "./palettes.js";
+import { DASHES, colormapLUT, nanRGB, token } from "./palettes.js";
 import { fitCanvas, fmtSig, h } from "./ui.js";
 
 function niceTicks(lo, hi, n = 5) {
@@ -17,10 +17,11 @@ function niceTicks(lo, hi, n = 5) {
 
 function tickLabel(v, log, step) {
   if (log) return `1e${Math.round(v)}`;
+  if (v === 0) return "0";
   const a = Math.abs(v);
   if (step && a < 1e5 && step >= 1e-9) {
     const dec = Math.max(0, Math.min(10, Math.ceil(-Math.log10(step) - 1e-9)));
-    if (a === 0 || a >= 1e-3 || dec <= 6) return v.toFixed(dec);
+    if (a >= 1e-3 || dec <= 6) return v.toFixed(dec);
   }
   if (a !== 0 && (a < 1e-2 || a >= 1e4)) return v.toExponential(0);
   return String(Number(v.toPrecision(4)));
@@ -137,13 +138,16 @@ export class LineChart extends Base {
     ctx.save();
     ctx.beginPath(); ctx.rect(L, T, w - L - R, hh - T - B); ctx.clip();
     const pxBudget = Math.max(200, (w - L - R) * 2);
+    // Without hue, labelled series are separated by dash pattern.
+    const labeledAll = this.series.filter((x) => x.label);
+    const autoDash = (s) => (s.dash || (labeledAll.length > 1 && s.label ? DASHES[labeledAll.indexOf(s) % DASHES.length] : []));
     for (const s of this.series) {
       const n = s.y.length;
       if (!n) continue;
       ctx.strokeStyle = s.color || token("cyan");
       ctx.globalAlpha = s.alpha ?? 1;
       ctx.lineWidth = s.width || 1.5;
-      ctx.setLineDash(s.dash || []);
+      ctx.setLineDash(autoDash(s));
       ctx.beginPath();
       const step = Math.max(1, Math.floor(n / pxBudget));
       let pen = false;
@@ -199,7 +203,8 @@ export class LineChart extends Base {
       for (const s of labeled.slice(0, 8)) {
         const tw = ctx.measureText(s.label).width;
         if (lx + tw + 24 > w - R) { lx = L + 6; ly += 14; }
-        ctx.fillStyle = s.color; ctx.fillRect(lx, ly - 1.5, 12, 3);
+        ctx.save(); ctx.strokeStyle = s.color; ctx.lineWidth = 1.6; ctx.setLineDash(autoDash(s).map((d) => d * 0.7));
+        ctx.beginPath(); ctx.moveTo(lx, ly); ctx.lineTo(lx + 14, ly); ctx.stroke(); ctx.restore();
         ctx.fillStyle = th.text; ctx.fillText(s.label, lx + 16, ly);
         lx += tw + 30;
       }
@@ -307,10 +312,10 @@ export class Heatmap extends Base {
     this.img.width = nx; this.img.height = ny;
     const ic = this.img.getContext("2d");
     const im = ic.createImageData(nx, ny);
-    const L = colormapLUT(this.opts.cmap || "magma");
+    const L = colormapLUT(this.opts.cmap || "auto");
     const [lo, hi] = this.range();
     this.vr = [lo, hi];
-    const nan = this.opts.nanColor || [12, 15, 26];
+    const nan = this.opts.nanColor || nanRGB();
     const inv = this.opts.invert;
     for (let j = 0; j < ny; j++) {
       for (let i = 0; i < nx; i++) {
@@ -354,7 +359,7 @@ export class Heatmap extends Base {
     if (this.opts.ylabel) { ctx.save(); ctx.translate(11, oy + H / 2); ctx.rotate(-Math.PI / 2); ctx.fillText(this.opts.ylabel, 0, 0); ctx.restore(); }
     // colourbar
     const cbx = ox + W + 14, cbw = 12;
-    const Lut = colormapLUT(this.opts.cmap || "magma");
+    const Lut = colormapLUT(this.opts.cmap || "auto");
     for (let k = 0; k < H; k++) {
       let u = 1 - k / (H - 1);
       if (this.opts.invert) u = 1 - u;

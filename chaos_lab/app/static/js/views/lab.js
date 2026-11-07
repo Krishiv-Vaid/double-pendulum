@@ -4,7 +4,7 @@
 import { api, decodeF32, download, runJob } from "../api.js";
 import { Heatmap, LineChart } from "../charts.js";
 import { LocalClock, miniTransport } from "../controls.js";
-import { paletteStops, rgba, sampler, token } from "../palettes.js";
+import { paletteStops, rgba, sampler, seriesStyle, token } from "../palettes.js";
 import { PendulumRenderer } from "../renderer.js";
 import { addPositions, bus, cloneDeep, setConfig, state } from "../state.js";
 import { btn, fmt, fmtSig, h, panel, progressBar, select, slider, toast } from "../ui.js";
@@ -69,7 +69,7 @@ function integrators(root) {
     h("div", { class: "col" }, table, h("div", { class: "grid-2" }, c1, c2), c3)));
 
   function show(r) {
-    const pal = [token("red"), token("gold"), token("purple"), token("cyan"), token("pink"), token("green")];
+    const pal = [0, 1, 2, 3, 4, 5].map((i) => seriesStyle(i).color); // grey levels; dashes come from the chart
     table.innerHTML = "";
     table.append(panel("Results", h("table", { class: "data" },
       h("tr", {}, ...["Integrator", "runtime", "fn evals", "max |ΔE/E₀|", "final Δ vs ref", "max Δ vs ref"].map((x) => h("th", {}, x))),
@@ -172,7 +172,7 @@ function landscape(root) {
   root.append(h("div", { class: "layout-2 wide-left" },
     h("div", { class: "col" }, panel("Potential energy V(θ₁, θ₂)", h("div", { class: "faint", style: { fontSize: "12.5px", display: "grid", gap: "6px" } },
       h("div", {}, "V = −(m₁+m₂) g L₁ cos θ₁ − m₂ g L₂ cos θ₂ with zero at the pivot height."),
-      h("div", {}, "Starting at rest, motion is confined to the region V ≤ E₀ (white contour). Click the map to choose a new initial configuration; the current trajectory is projected in cyan."))), info),
+      h("div", {}, "Starting at rest, motion is confined to the region V ≤ E₀ (dotted contour). Click the map to choose a new initial configuration; the current trajectory is projected as a thin line."))), info),
     box));
   async function run() {
     try {
@@ -197,11 +197,11 @@ function landscape(root) {
         if (a * b < 0 || a * c < 0) cont.push([-Math.PI + ((i + 0.5) / (n - 1)) * 2 * Math.PI, -Math.PI + ((j + 0.5) / (n - 1)) * 2 * Math.PI]);
       }
       hm.overlay = [
-        { type: "points", pts: cont, color: "#ffffff", r: 1.1, alpha: 0.85 },
+        { type: "points", pts: cont, color: token("fg"), r: 1.1, alpha: 0.9 },
         { type: "path", pts: traj, color: token("cyan"), width: 1, alpha: 0.6 },
         { type: "points", pts: r.equilibria.map((e) => [wrap0(e.theta1), wrap0(e.theta2), e.name]), color: token("gold"), r: 5 },
       ];
-      hm.set(V, n, n, [-Math.PI, Math.PI], [-Math.PI, Math.PI], { cmap: "viridis", unit: "V [J]", clip: 0 });
+      hm.set(V, n, n, [-Math.PI, Math.PI], [-Math.PI, Math.PI], { cmap: "auto", unit: "V [J]", clip: 0 });
       info.innerHTML = "";
       info.append(panel("Equilibria", h("table", { class: "data" }, ...r.equilibria.map((e) => h("tr", {}, h("td", {}, e.name), h("td", { class: "num" }, `${fmt(e.potential_energy, 2)} J`), h("td", {}, e.classification)))),
         h("p", { class: "faint", style: { fontSize: "12px" } }, `Current E₀ = ${fmt(r.E0, 3)} J. Equilibria at ±π appear on the map edges (θ = π ≡ −π).`)));
@@ -320,7 +320,7 @@ function sweeps(root) {
     info.textContent = `${v.length} vectorized simulations in ${fmt(r.runtime_s, 2)} s (T = ${r.t_max} s, Δt = ${r.dt} s)`;
     lineBox.style.display = r.y_key ? "none" : ""; heatBox.style.display = r.y_key ? "" : "none";
     if (!r.y_key) lc.set([{ x: xs, y: Float64Array.from(v), color: token("cyan"), points: xs.length < 80, noMinMax: true }], { xlabel: labels[r.x_key] || r.x_key, ylabel: obs.input.selectedOptions[0].text, xname: r.x_key });
-    else hm.set(v, r.shape[1], r.shape[0], [xs[0], xs[xs.length - 1]], [r.y[0], r.y[r.y.length - 1]], { xlabel: labels[r.x_key], ylabel: labels[r.y_key], cmap: "magma", unit: obs.input.selectedOptions[0].text, vname: r.observable, xname: r.x_key, yname: r.y_key });
+    else hm.set(v, r.shape[1], r.shape[0], [xs[0], xs[xs.length - 1]], [r.y[0], r.y[r.y.length - 1]], { xlabel: labels[r.x_key], ylabel: labels[r.y_key], cmap: "auto", unit: obs.input.selectedOptions[0].text, vname: r.observable, xname: r.x_key, yname: r.y_key });
   }
   function csv() {
     if (!last) return;
@@ -402,7 +402,7 @@ function advanced(root) {
     ctx.clearRect(0, 0, W, H);
     if (!anim) { ctx.fillStyle = token("text-3"); ctx.font = `${13 * dpr}px system-ui, -apple-system, sans-serif`; ctx.textAlign = "center"; ctx.fillText("Choose a model and press Simulate.", W / 2, H / 2); return; }
     const i = Math.min(anim.t.length - 1, Math.round(t / (anim.t[1] - anim.t[0])));
-    const pal = sampler(paletteStops(state.visual.palette, state.visual.custom));
+    const pal = sampler(paletteStops(state.visual.palette));
     if (anim.kind === "nlink") {
       const L = anim.r.lengths, Ltot = L.reduce((a, b) => a + b, 0), sc = Math.min(W, H) / (2.3 * Ltot);
       const pts = [[W / 2, H / 2]];
