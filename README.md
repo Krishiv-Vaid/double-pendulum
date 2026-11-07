@@ -4,7 +4,6 @@
 
 **Two pendulums. Infinite possibilities. Explore the mathematics of chaos.**
 
-[![CI](https://github.com/Krishiv-Vaid/double-pendulum/actions/workflows/ci.yml/badge.svg)](https://github.com/Krishiv-Vaid/double-pendulum/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/python-3.10%2B-00E5FF)
 
 <img src="assets/gifs/hero-chaos.gif" width="460" alt="A chaotic double pendulum tracing a glowing rainbow trail">
