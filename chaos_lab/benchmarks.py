@@ -104,15 +104,18 @@ def run(quick: bool = False) -> dict:
         t, _ = timed(lambda y0=y0, ce=ce, Te=Te: ensemble.integrate_batch(ce.physical, y0, Te, 2e-3, 1 / 60), 1)
         add(f"{n}-pendulum ensemble RK4", n * Te / 2e-3 / t, "pendulum-steps/s", t_max=Te, dt=2e-3, wall_s=t)
 
-    # chaos map
-    res_px = 100 if quick else 200
-    spec = maps.MapSpec(nx=res_px, ny=res_px, t_max=10.0, dt=0.005)
+    # chaos maps: a small map (auto = single process) and a large one with explicit worker counts
+    spec = maps.MapSpec(nx=200, ny=200, t_max=10.0, dt=0.005)
     t, _ = timed(lambda: maps.compute_map(spec, use_cache=False), 1)
-    add(f"first-flip map {res_px}x{res_px} (parallel)", t, "s", workers=max(1, (os.cpu_count() or 2) - 1),
-        t_max=10.0, dt=0.005)
-    t1, _ = timed(lambda: maps.compute_map(spec, workers=1, use_cache=False), 1)
-    add(f"first-flip map {res_px}x{res_px} (1 process)", t1, "s")
-    add("map parallel speed-up", t1 / t, "x")
+    add("first-flip map 200x200 (auto: 1 process)", t, "s", t_max=10.0, dt=0.005)
+    if not quick:
+        big = maps.MapSpec(nx=400, ny=400, t_max=10.0, dt=0.005)
+        nw = max(1, (os.cpu_count() or 2) - 1)
+        tp, _ = timed(lambda: maps.compute_map(big, workers=nw, use_cache=False), 1)
+        add(f"first-flip map 400x400 ({nw} processes)", tp, "s", t_max=10.0, dt=0.005)
+        t1, _ = timed(lambda: maps.compute_map(big, workers=1, use_cache=False), 1)
+        add("first-flip map 400x400 (1 process)", t1, "s")
+        add("400x400 map parallel speed-up", t1 / tp, "x", workers=nw)
 
     # rendering and export
     r = simulate(cfg.with_(**{"numerics.t_max": 5.0, "numerics.output_dt": 1 / 120}))
@@ -139,7 +142,8 @@ def run(quick: bool = False) -> dict:
     add("peak traced memory: 100-pendulum ensemble 10 s",
         peak_memory(lambda: ensemble.integrate_batch(cfg.physical, np.tile(cfg.initial.state(), (100, 1)), 10.0,
                                                      2e-3, 1 / 60)), "MiB")
-    res["environment"] = {"hardware": hardware(), **reproducibility_stamp()}
+    res["environment"] = {"hardware": hardware(), **reproducibility_stamp(),
+                          "load_average_1_5_15min": list(os.getloadavg()) if hasattr(os, "getloadavg") else None}
     return res
 
 
@@ -153,11 +157,15 @@ def to_markdown(res: dict) -> str:
     for r in res["results"]:
         v = r["value"]
         txt = f"{v:.3g}" if (abs(v) < 1e-2 or abs(v) >= 1e5) else f"{v:,.3f}".rstrip("0").rstrip(".")
-        lines.append(f"| {r['name']} | {txt} | {r['unit']} |")
+        name = r["name"].replace("|", "\\|")
+        lines.append(f"| {name} | {txt} | {r['unit']} |")
     lines += ["", f"Measured on {hw.get('cpu', hw.get('machine'))} ({hw.get('cpu_count')} logical CPUs"
               + (f", {hw['memory_gb']:.0f} GB RAM" if "memory_gb" in hw else "") + f"), {env['platform']}; "
               f"Python {env['python']}, NumPy {env['numpy']}, SciPy {env['scipy']}, Matplotlib {env['matplotlib']}; "
-              f"chaos_lab {env['chaos_lab_version']} (commit {env['git_commit']}), {env['created_utc']}."]
+              f"chaos_lab {env['chaos_lab_version']} (commit {env['git_commit']}), {env['created_utc']}."
+              + (f" System load average at start (1/5/15 min): "
+                 f"{', '.join(f'{v:.1f}' for v in env['load_average_1_5_15min'])}."
+                 if env.get("load_average_1_5_15min") else "")]
     return "\n".join(lines)
 
 
@@ -167,7 +175,9 @@ def main(argv=None):
     ap.add_argument("--output", default="benchmarks/results")
     a = ap.parse_args(argv)
     print("Chaos Lab benchmarks" + (" (quick)" if a.quick else ""))
+    load0 = list(os.getloadavg()) if hasattr(os, "getloadavg") else None
     res = run(a.quick)
+    res["environment"]["load_average_1_5_15min"] = load0
     out = Path(a.output)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.with_suffix(".json").write_text(json.dumps(res, indent=2))

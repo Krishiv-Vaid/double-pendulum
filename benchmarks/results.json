@@ -5,7 +5,7 @@
   "results": [
     {
       "name": "RK4 single trajectory",
-      "value": 22907.644395457562,
+      "value": 596828.3586140552,
       "unit": "steps/s",
       "settings": {
         "t_max": 30.0,
@@ -14,7 +14,7 @@
     },
     {
       "name": "RK4 single trajectory wall time",
-      "value": 1.309606500000882,
+      "value": 0.05026570799964247,
       "unit": "s",
       "settings": {
         "t_max": 30.0,
@@ -23,7 +23,7 @@
     },
     {
       "name": "RK45 wall time (rtol=atol=1e-10)",
-      "value": 0.373561125001288,
+      "value": 0.3123026249995746,
       "unit": "s",
       "settings": {
         "t_max": 30.0,
@@ -40,7 +40,7 @@
     },
     {
       "name": "DOP853 wall time (rtol=atol=1e-10)",
-      "value": 0.36121729200021946,
+      "value": 0.2418801669991808,
       "unit": "s",
       "settings": {
         "t_max": 30.0,
@@ -94,65 +94,75 @@
     },
     {
       "name": "10-pendulum ensemble RK4",
-      "value": 101520.43789323312,
+      "value": 173177.41593374536,
       "unit": "pendulum-steps/s",
       "settings": {
         "t_max": 10.0,
         "dt": 0.002,
-        "wall_s": 0.4925116660015192
+        "wall_s": 0.288721249999071
       }
     },
     {
       "name": "100-pendulum ensemble RK4",
-      "value": 934044.9822040264,
+      "value": 1543876.1877744847,
       "unit": "pendulum-steps/s",
       "settings": {
         "t_max": 10.0,
         "dt": 0.002,
-        "wall_s": 0.5353061250007158
+        "wall_s": 0.32386016700002074
       }
     },
     {
       "name": "1000-pendulum ensemble RK4",
-      "value": 4636714.219836606,
+      "value": 7621607.526860068,
       "unit": "pendulum-steps/s",
       "settings": {
         "t_max": 5.0,
         "dt": 0.002,
-        "wall_s": 0.5391749160007748
+        "wall_s": 0.3280147909990774
       }
     },
     {
-      "name": "first-flip map 200x200 (parallel)",
-      "value": 4.951368707999791,
+      "name": "first-flip map 200x200 (auto: 1 process)",
+      "value": 2.3260281660004694,
       "unit": "s",
       "settings": {
-        "workers": 9,
         "t_max": 10.0,
         "dt": 0.005
       }
     },
     {
-      "name": "first-flip map 200x200 (1 process)",
-      "value": 3.786098333999689,
+      "name": "first-flip map 400x400 (9 processes)",
+      "value": 7.658290709001449,
+      "unit": "s",
+      "settings": {
+        "t_max": 10.0,
+        "dt": 0.005
+      }
+    },
+    {
+      "name": "first-flip map 400x400 (1 process)",
+      "value": 12.110537250000561,
       "unit": "s",
       "settings": {}
     },
     {
-      "name": "map parallel speed-up",
-      "value": 0.7646569175675796,
+      "name": "400x400 map parallel speed-up",
+      "value": 1.5813629581554018,
       "unit": "x",
-      "settings": {}
+      "settings": {
+        "workers": 9
+      }
     },
     {
       "name": "raster render 640x640 (fade trail + glow)",
-      "value": 12.71754946933021,
+      "value": 30.604150147095417,
       "unit": "frames/s",
       "settings": {}
     },
     {
       "name": "GIF export 5 s @ 20 fps, 480x480",
-      "value": 5.188357375000123,
+      "value": 2.0377820410012646,
       "unit": "s",
       "settings": {
         "frames": 100
@@ -160,7 +170,7 @@
     },
     {
       "name": "MP4 export 5 s @ 30 fps, 1280x720",
-      "value": 28.368846666000536,
+      "value": 11.498660875000496,
       "unit": "s",
       "settings": {
         "frames": 150
@@ -168,13 +178,13 @@
     },
     {
       "name": "peak traced memory: 30 s RK4 run (1/240 s output)",
-      "value": 0.4027099609375,
+      "value": 0.40259552001953125,
       "unit": "MiB",
       "settings": {}
     },
     {
       "name": "peak traced memory: 100-pendulum ensemble 10 s",
-      "value": 2.1564292907714844,
+      "value": 2.156513214111328,
       "unit": "MiB",
       "settings": {}
     }
@@ -188,12 +198,17 @@
       "memory_gb": 16.0
     },
     "chaos_lab_version": "0.2.0",
-    "git_commit": "f25c429",
-    "created_utc": "2026-11-07T01:44:54+00:00",
+    "git_commit": "186d92d",
+    "created_utc": "2026-11-07T02:48:57+00:00",
     "python": "3.14.7",
     "numpy": "2.5.4",
     "scipy": "1.18.1",
     "matplotlib": "3.11.2",
-    "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O"
+    "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+    "load_average_1_5_15min": [
+      4.47509765625,
+      6.04443359375,
+      5.98388671875
+    ]
   }
 }
