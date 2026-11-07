@@ -325,6 +325,11 @@ def cmd_serve(a):
 
 
 def main(argv=None):
+    argv = sys.argv[1:] if argv is None else list(argv)
+    if argv[:1] == ["serve"]:
+        # argparse.REMAINDER does not capture options such as "--port" inside a
+        # subparser, so hand everything after "serve" to the dashboard directly.
+        return cmd_serve(argparse.Namespace(rest=argv[1:]))
     ap = argparse.ArgumentParser(prog="chaos-lab", description="Chaos Lab Ultra — double pendulum chaos laboratory")
     sub = ap.add_subparsers(dest="cmd", required=True)
 
