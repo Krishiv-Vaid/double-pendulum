@@ -40,7 +40,7 @@ python -m chaos_lab map --res 300 -o flip-map.png
 | **Experiments** | Butterfly ensembles of 2–2000 pendulums with a numerical-error control, parallel cached chaos maps, 1D/2D parameter sweeps, integrator lab, 25 verified presets, 8 challenges with feedback, art search |
 | **Visuals** | Neon renderer with additive glow, 12 trail modes, 7 particle systems, 5 camera modes, motion blur, 11 palettes including colour-blind-safe ones, dark and light design tokens |
 | **Export** | GIF, MP4, WebM, PNG sequences, 4K, transparent PNG, SVG, publication figures, CSV with units, reproducible zip bundles |
-| **Engineering** | 125 tests, including an independent Euler–Lagrange check; CI; benchmark suite; full documentation |
+| **Engineering** | 147 tests, including an independent Euler–Lagrange check and the dashboard API; CI; benchmark suite; full documentation |
 
 ## Gallery
 
@@ -85,11 +85,39 @@ Rebuild all assets with `python scripts/generate_gallery.py`. A 720p MP4 is in
 
 ## Interactive dashboard
 
-The web dashboard (`python -m chaos_lab serve`) is being built in parallel on
-the `chaos-lab-ultra` branch. It's a standard-library HTTP server with a canvas
-frontend, and it drives the same engine as everything here. Until it is merged
-into this branch, `serve` prints a message saying the dashboard isn't
-installed. Screenshots will be added here once it lands.
+```bash
+python -m chaos_lab serve            # opens http://localhost:8765 (add --port N, --no-browser)
+```
+
+The dashboard is a standard-library HTTP server (`chaos_lab/app/`) with a canvas frontend that
+needs no build step and no internet connection. It drives the same engine as the CLI. Numerical
+state lives on the server and visual state in the browser, so changing a colour, trail or camera
+never re-runs an integration. Heavy experiments run as background jobs with progress bars and a
+Cancel button.
+
+<table>
+<tr>
+<td><img src="assets/screenshots/playground.png" alt="Playground: neon pendulum with velocity-coloured trail and sparks, live state readouts, energy charts and event timeline"><br><b>Playground</b>: every parameter, live energy diagnostics, and a time machine (scrub, step, reverse playback of recorded states, event bookmarks, A/B timestamp comparison)</td>
+<td><img src="assets/screenshots/studio.png" alt="Chaos Studio: a long-exposure plasma trajectory"><br><b>Chaos Studio</b>: 14 palettes, 12 trail modes, 7 particle effects, camera and motion blur, an art generator, and 4K/SVG artwork with its exact config saved to the gallery</td>
+</tr>
+<tr>
+<td><img src="assets/screenshots/butterfly.png" alt="Butterfly Arena: 24 pendulums fanning into a rainbow at the divergence time, with log separation plot"><br><b>Butterfly Arena</b>: 2–400 pendulums, a log separation plot with threshold and numerical-error control, and a replay of the divergence moment</td>
+<td><img src="assets/screenshots/fractal-explorer.png" alt="Fractal Explorer: first-flip-time map over initial angles"><br><b>Fractal Explorer</b>: progressive maps that are recomputed on every pan or zoom, with zoom history, bookmarks, click-to-launch, and zoom-movie export</td>
+</tr>
+<tr>
+<td><img src="assets/screenshots/phase-space.png" alt="Phase-space portraits coloured by elapsed time"><br><b>Phase Space</b>: four projections, a rotatable 3D projection, Poincaré sections, spectra, and recurrence plots</td>
+<td><img src="assets/screenshots/physics-lab.png" alt="Physics Lab integrator comparison table and energy-error charts"><br><b>Physics Lab</b>: integrator showdown and RK4 convergence, normal modes, equilibria, energy landscape, a Lyapunov lab with Lorenz validation, sweeps, and the triple pendulum and moving pivot</td>
+</tr>
+</table>
+
+The app also includes an **Experiment Notebook** (tags, favourites, duplicate, JSON import and export,
+side-by-side comparison), an **Export Studio** (frame-exact GIF and MP4 through the server encoder,
+WebM, PNG sequences, CSV, reproducible bundles, share links that encode the configuration in the URL),
+**Challenges**, a 14-lesson **Academy**, a ⌘K command palette, keyboard shortcuts (`?`), light and dark
+themes, reduced-motion mode, optional sonification and a 3D presentation view. The 3D view shows the
+same planar motion; it is not a new degree of freedom. Experiments and artworks are stored in
+`~/.chaos_lab/` (override with `CHAOS_LAB_HOME`). The server binds to `127.0.0.1` and has no
+authentication, so treat it as a local tool.
 
 ## Physics
 
@@ -307,9 +335,10 @@ updated sidecar.
 - [x] Cinematic renderer, export studio, 20-demo gallery
 - [x] Chaos laboratory: ensembles, Lyapunov, Poincaré, maps, sweeps
 - [x] Advanced physics: damping, driving, normal modes, equilibria, moving pivot, triple pendulum
-- [ ] Interactive dashboard: in progress on `chaos-lab-ultra` (playground, studio, butterfly arena, fractal explorer, time machine, notebook)
+- [x] Interactive dashboard: playground with time machine, studio, butterfly arena, fractal explorer, phase space, physics lab, notebook, gallery, export studio, challenges, academy
+- [x] Audio sonification and the 3D presentation view (dashboard)
 - [ ] Optional Numba kernels for very large maps (benchmark first)
-- [ ] Audio sonification and the 3D presentation view (dashboard)
+- [ ] Browser-side automated UI tests (the backend API is covered by `tests/test_app.py`)
 - [ ] Spherical double pendulum (needs a new, separately derived model)
 
 ## License

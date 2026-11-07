@@ -255,3 +255,13 @@ def test_http_experiments_crud(server):
     assert any(x["id"] == e["id"] for x in lst["experiments"])
     status, _ = _req(f"{server}/api/experiments/{e['id']}", method="DELETE")
     assert status == 200
+
+
+def test_cli_serve_forwards_options(monkeypatch):
+    import chaos_lab.app.server as server
+    from chaos_lab import cli
+
+    seen = {}
+    monkeypatch.setattr(server, "main", lambda argv=None: seen.setdefault("argv", argv))
+    cli.main(["serve", "--port", "9999", "--no-browser"])
+    assert seen["argv"] == ["--port", "9999", "--no-browser"]
