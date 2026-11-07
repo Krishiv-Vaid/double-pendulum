@@ -10,7 +10,7 @@ Regenerate everything with `python scripts/generate_gallery.py` (≈ 4 minutes o
 
 ![Hero Chaos](../assets/gifs/hero-chaos.gif)
 
-A single chaotic double pendulum with a rainbow trail. The glow is a rendering effect added to the light layer; the trajectory itself is untouched.
+A single chaotic double pendulum with a fading white trail. The faint bloom is a rendering effect added to the light layer; the trajectory itself is untouched.
 
 - **Parameters:** θ1(0) = 160°, θ2(0) = 20°; m1 = 1, m2 = 1 kg; L1 = 1, L2 = 1 m; g = 9.81 m/s²; RK4 dt = 0.001 s
 - **Playback speed:** 1
@@ -81,7 +81,7 @@ Eight pendulums whose initial θ1 values span 1e-4 rad. The right panel shows ea
 
 ![100 Pendulums](../assets/gifs/pendulum-swarm.gif)
 
-One hundred pendulums spread over 1e-4 rad in θ2: a single rod splits into a rainbow fan.
+One hundred pendulums spread over 1e-4 rad in θ2: a single rod splits into a fan.
 
 - **Parameters:** θ1(0) = 150°, θ2(0) = 150°; m1 = 1, m2 = 1 kg; L1 = 1, L2 = 1 m; g = 9.81 m/s²; RK4 dt = 0.002 s
 - **Playback speed:** 1

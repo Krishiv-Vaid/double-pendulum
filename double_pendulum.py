@@ -13,7 +13,7 @@ Usage:
     python double_pendulum.py --save out.mp4  # or out.gif
     python double_pendulum.py --no-show       # just print energy stats
     python double_pendulum.py --method dop853 # adaptive integrator
-    python double_pendulum.py --style neon    # dark neon theme
+    python double_pendulum.py --style dark    # white on black
 
 For the full interactive lab run ``python -m chaos_lab serve``.
 """
@@ -70,8 +70,8 @@ def simulate(y0, t_max: float, dt: float, p: Params, method: str = "rk4"):
 STYLES = {
     "classic": dict(bg=None, fg=None, rod="tab:blue", mass="tab:red", trail="tab:orange",
                     energy="tab:green", backdrop="lightgray", box_fc="white", box_ec="0.7", grid=0.3),
-    "neon": dict(bg="#070910", fg="#F4F7FF", rod="#F4F7FF", mass="#FF3CAC", trail="#00E5FF",
-                 energy="#39FF88", backdrop="#2A3348", box_fc="#101522", box_ec="#2A3348", grid=0.12),
+    "dark": dict(bg="#000000", fg="#F2F2F2", rod="#B0B0B0", mass="#FFFFFF", trail="#FFFFFF",
+                 energy="#FFFFFF", backdrop="#2E2E2E", box_fc="#0E0E0E", box_ec="#262626", grid=0.10),
 }
 
 

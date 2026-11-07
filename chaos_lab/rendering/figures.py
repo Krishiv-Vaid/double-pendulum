@@ -23,12 +23,17 @@ def apply_theme(theme: str = "dark") -> dict:
         "axes.edgecolor": t["border"],
         "axes.labelcolor": t["text_2"],
         "axes.titlecolor": t["text"],
-        "axes.titlesize": 11,
-        "axes.titleweight": "bold",
+        "axes.titlesize": 10.5,
+        "axes.titleweight": "normal",
+        "axes.titlelocation": "left",
+        "axes.spines.top": False,
+        "axes.spines.right": False,
         "axes.labelsize": 9,
         "axes.grid": True,
         "grid.color": t["grid"],
-        "grid.linewidth": 0.6,
+        "grid.linewidth": 0.5,
+        "lines.linewidth": 1.2,
+        "image.cmap": "gray",
         "xtick.color": t["text_2"],
         "ytick.color": t["text_2"],
         "xtick.labelsize": 8,
@@ -38,7 +43,8 @@ def apply_theme(theme: str = "dark") -> dict:
         "legend.edgecolor": t["border"],
         "legend.fontsize": 8,
         "font.family": "DejaVu Sans",
-        "axes.prop_cycle": matplotlib.cycler(color=[t["cyan"], t["pink"], t["green"], t["gold"], t["purple"]]),
+        # monochrome: series differ by tone (and explicit dashes where meaningful), never by hue
+        "axes.prop_cycle": matplotlib.cycler(color=[t["fg"], t["fg_2"], t["fg_3"]]),
     })
     return t
 

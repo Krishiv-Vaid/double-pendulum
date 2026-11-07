@@ -125,7 +125,8 @@ def run(quick: bool = False) -> dict:
     t0 = time.perf_counter()
     for i in np.linspace(0, len(r.t) - 1, n_frames).astype(int):
         R.render(int(i))
-    add("raster render 640x640 (fade trail + glow)", n_frames / (time.perf_counter() - t0), "frames/s")
+    fps = n_frames / (time.perf_counter() - t0)
+    add("raster render 640x640 (default monochrome style, fade trail)", fps, "frames/s")
     with tempfile.TemporaryDirectory() as d:
         c5 = cfg.with_(**{"numerics.t_max": 5.0})
         t, _ = timed(lambda: studio.render_animation(c5, Path(d) / "b.gif", raster.Style(width=480, height=480),

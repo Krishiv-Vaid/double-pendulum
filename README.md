@@ -4,9 +4,10 @@
 
 **Two pendulums. Infinite possibilities. Explore the mathematics of chaos.**
 
-![Python](https://img.shields.io/badge/python-3.10%2B-00E5FF)
+![Python](https://img.shields.io/badge/python-3.10%2B-black)
+[![License: MIT](https://img.shields.io/badge/license-MIT-black)](LICENSE)
 
-<img src="assets/gifs/hero-chaos.gif" width="460" alt="A chaotic double pendulum tracing a glowing rainbow trail">
+<img src="assets/gifs/hero-chaos.gif" width="460" alt="A chaotic double pendulum tracing a fading white trail on black">
 
 </div>
 
@@ -38,16 +39,16 @@ python -m chaos_lab map --res 300 -o flip-map.png
 | **Integrators** | RK4 (scalar fast path plus a vectorized batch path), RK45 and DOP853 with dense output and event location |
 | **Chaos analysis** | Lyapunov exponents (tangent and two-trajectory, validated on Lorenz), predictability horizons, Poincaré sections with root-found crossings, normal modes, equilibrium stability, spectra, recurrence |
 | **Experiments** | Butterfly ensembles of 2–2000 pendulums with a numerical-error control, parallel cached chaos maps, 1D/2D parameter sweeps, integrator lab, 25 verified presets, 8 challenges with feedback, art search |
-| **Visuals** | Neon renderer with additive glow, 12 trail modes, 7 particle systems, 5 camera modes, motion blur, 11 palettes including colour-blind-safe ones, dark and light design tokens |
+| **Visuals** | Strictly monochrome: white on black (default) or black on white. Supersampled renderer with 12 trail modes, optional particles, 5 camera modes, motion blur and greyscale ramps; series are distinguished by tone and dash, never by hue |
 | **Export** | GIF, MP4, WebM, PNG sequences, 4K, transparent PNG, SVG, publication figures, CSV with units, reproducible zip bundles |
-| **Engineering** | 147 tests, including an independent Euler–Lagrange check and the dashboard API; CI; benchmark suite; full documentation |
+| **Engineering** | 150 tests, including an independent Euler–Lagrange check and the dashboard API; CI; benchmark suite; full documentation |
 
 ## Gallery
 
 <table>
 <tr>
 <td align="center"><img src="assets/gifs/butterfly-effect.gif" width="420"><br><b>Butterfly effect</b>: 8 pendulums 0.0001 rad apart, with a log-scale separation plot and a numerical control</td>
-<td align="center"><img src="assets/gifs/pendulum-swarm.gif" width="300"><br><b>100 pendulums</b>: one rod splits into a rainbow fan</td>
+<td align="center"><img src="assets/gifs/pendulum-swarm.gif" width="300"><br><b>100 pendulums</b>: one rod splits into a fan</td>
 </tr>
 <tr>
 <td align="center"><img src="assets/gifs/energy-conservation.gif" width="420"><br><b>Energy</b>: T, V, E and the RK4 energy error on one clock</td>
@@ -97,18 +98,20 @@ Cancel button.
 
 <table>
 <tr>
-<td><img src="assets/screenshots/playground.png" alt="Playground: neon pendulum with velocity-coloured trail and sparks, live state readouts, energy charts and event timeline"><br><b>Playground</b>: every parameter, live energy diagnostics, and a time machine (scrub, step, reverse playback of recorded states, event bookmarks, A/B timestamp comparison)</td>
-<td><img src="assets/screenshots/studio.png" alt="Chaos Studio: a long-exposure plasma trajectory"><br><b>Chaos Studio</b>: 14 palettes, 12 trail modes, 7 particle effects, camera and motion blur, an art generator, and 4K/SVG artwork with its exact config saved to the gallery</td>
+<td><img src="assets/screenshots/playground.png" alt="Playground: white-on-black pendulum with a fading trail, live state readouts, energy charts and event timeline"><br><b>Playground</b>: every parameter, live energy diagnostics, and a time machine (scrub, step, reverse playback of recorded states, event bookmarks, A/B timestamp comparison)</td>
+<td><img src="assets/screenshots/studio.png" alt="Chaos Studio: a long-exposure trajectory in white on black"><br><b>Chaos Studio</b>: four greyscale ramps (white, silver, black, gray), 12 trail modes, optional particles, camera and motion blur, an art generator, and 4K/SVG artwork with its exact config saved to the gallery</td>
 </tr>
 <tr>
-<td><img src="assets/screenshots/butterfly.png" alt="Butterfly Arena: 24 pendulums fanning into a rainbow at the divergence time, with log separation plot"><br><b>Butterfly Arena</b>: 2–400 pendulums, a log separation plot with threshold and numerical-error control, and a replay of the divergence moment</td>
+<td><img src="assets/screenshots/butterfly.png" alt="Butterfly Arena: 24 pendulums fanning apart at the divergence time, with log separation plot"><br><b>Butterfly Arena</b>: 2–400 pendulums, a log separation plot with threshold and numerical-error control, and a replay of the divergence moment</td>
 <td><img src="assets/screenshots/fractal-explorer.png" alt="Fractal Explorer: first-flip-time map over initial angles"><br><b>Fractal Explorer</b>: progressive maps that are recomputed on every pan or zoom, with zoom history, bookmarks, click-to-launch, and zoom-movie export</td>
 </tr>
 <tr>
-<td><img src="assets/screenshots/phase-space.png" alt="Phase-space portraits coloured by elapsed time"><br><b>Phase Space</b>: four projections, a rotatable 3D projection, Poincaré sections, spectra, and recurrence plots</td>
+<td><img src="assets/screenshots/phase-space.png" alt="Phase-space portraits shaded by elapsed time"><br><b>Phase Space</b>: four projections, a rotatable 3D projection, Poincaré sections, spectra, and recurrence plots</td>
 <td><img src="assets/screenshots/physics-lab.png" alt="Physics Lab integrator comparison table and energy-error charts"><br><b>Physics Lab</b>: integrator showdown and RK4 convergence, normal modes, equilibria, energy landscape, a Lyapunov lab with Lorenz validation, sweeps, and the triple pendulum and moving pivot</td>
 </tr>
 </table>
+
+Prefer black on white? Every view has a light theme: [Playground in light mode](assets/screenshots/playground-light.png).
 
 The app also includes an **Experiment Notebook** (tags, favourites, duplicate, JSON import and export,
 side-by-side comparison), an **Export Studio** (frame-exact GIF and MP4 through the server encoder,
@@ -222,8 +225,9 @@ python -m chaos_lab art-search --objective symmetry --n 256   # candidates as co
 ## Export
 
 ```bash
-python -m chaos_lab render --preset rainbow_chaos -o reel.mp4 --video-preset reels --title "Chaos" --params
-python -m chaos_lab render --preset neon_plasma -o clip.webm --particles sparks --camera smooth --energy-graph
+python -m chaos_lab render --preset gradient_chaos -o reel.mp4 --video-preset reels --title "Chaos" --params
+python -m chaos_lab render --preset velocity_swirls -o clip.webm --camera smooth --energy-graph
+python -m chaos_lab render --preset classic -o ink.gif --theme light            # black on white
 python -m chaos_lab render --preset classic -o frames/ --fps 60          # PNG sequence
 python -m chaos_lab art --preset long_exposure --size 4k -o wallpaper.png --gallery
 python -m chaos_lab art --preset long_exposure --transparent -o sticker.png
@@ -262,16 +266,15 @@ Measured with `python -m chaos_lab bench`. Full table and environment:
 
 | Benchmark (Apple M4, Python 3.14) | Measured |
 |---|---|
-| Single trajectory, RK4 dt = 1 ms | 30 s of motion in 0.05 s (≈ 600k steps/s) |
-| DOP853, rtol = atol = 1e-10, 30 s | 0.24 s, max \|ΔE/E0\| = 3.4 × 10⁻⁷ |
-| 1000-pendulum ensemble, RK4 | 7.6 M pendulum-steps/s |
-| First-flip map 200×200, 10 s horizon | 2.3 s |
-| First-flip map 400×400 | 12.1 s on 1 process, 7.7 s on 9 (1.6× speed-up) |
-| Raster renderer, 640×640, trail + glow | 31 frames/s |
-| MP4 export, 5 s at 1280×720, 30 fps | 11.5 s |
+| Single trajectory, RK4 dt = 1 ms | 30 s of motion in 0.05 s (≈ 640k steps/s) |
+| DOP853, rtol = atol = 1e-10, 30 s | 0.25 s, max \|ΔE/E0\| = 3.4 × 10⁻⁷ |
+| 1000-pendulum ensemble, RK4 | 7.8 M pendulum-steps/s |
+| First-flip map 200×200, 10 s horizon | 2.2 s |
+| First-flip map 400×400 | 8.6 s on 1 process, 2.4 s on 9 (3.6× speed-up) |
+| Raster renderer, 640×640, default style | 103 frames/s |
+| MP4 export, 5 s at 1280×720, 30 fps | 3.7 s |
 
-These numbers were measured while another heavy process was running (load
-average about 4.5–6), so the parallel speed-up in particular is conservative.
+Measured at a system load average of about 3.5 (other applications were running).
 Rendering throughput is reported separately from integration throughput.
 
 ## Architecture
@@ -343,5 +346,4 @@ updated sidecar.
 
 ## License
 
-No license has been chosen yet, so all rights are reserved by default. A
-license will be added before external contributions are accepted.
+[MIT](LICENSE) © 2026 Krishiv Vaid

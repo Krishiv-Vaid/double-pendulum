@@ -17,6 +17,8 @@ pytest -q && ruff check .
   independent checks to re-deriving the same formula: energy conservation and
   its convergence, the Euler–Lagrange residual in `tests/test_physics.py`,
   analytic limits, and conservation or balance laws.
+* **Keep it monochrome.** Use the tokens in `rendering/palettes.py` (greys only). Distinguish
+  series by tone and dash pattern, never by hue; a test enforces that every token is grey.
 * **Never present visuals as physics.** Glow, particles, camera motion,
   cross-fades and colour mappings must not feed back into the simulation, and
   must be labelled when they could be mistaken for dynamics.

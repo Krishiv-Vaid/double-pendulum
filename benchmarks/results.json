@@ -5,7 +5,7 @@
   "results": [
     {
       "name": "RK4 single trajectory",
-      "value": 596828.3586140552,
+      "value": 640656.6063979743,
       "unit": "steps/s",
       "settings": {
         "t_max": 30.0,
@@ -14,7 +14,7 @@
     },
     {
       "name": "RK4 single trajectory wall time",
-      "value": 0.05026570799964247,
+      "value": 0.04682695799965586,
       "unit": "s",
       "settings": {
         "t_max": 30.0,
@@ -23,7 +23,7 @@
     },
     {
       "name": "RK45 wall time (rtol=atol=1e-10)",
-      "value": 0.3123026249995746,
+      "value": 0.30581045799954154,
       "unit": "s",
       "settings": {
         "t_max": 30.0,
@@ -40,7 +40,7 @@
     },
     {
       "name": "DOP853 wall time (rtol=atol=1e-10)",
-      "value": 0.2418801669991808,
+      "value": 0.24457504199926916,
       "unit": "s",
       "settings": {
         "t_max": 30.0,
@@ -94,37 +94,37 @@
     },
     {
       "name": "10-pendulum ensemble RK4",
-      "value": 173177.41593374536,
+      "value": 172318.86917550483,
       "unit": "pendulum-steps/s",
       "settings": {
         "t_max": 10.0,
         "dt": 0.002,
-        "wall_s": 0.288721249999071
+        "wall_s": 0.29015974999856553
       }
     },
     {
       "name": "100-pendulum ensemble RK4",
-      "value": 1543876.1877744847,
+      "value": 1556555.4999570588,
       "unit": "pendulum-steps/s",
       "settings": {
         "t_max": 10.0,
         "dt": 0.002,
-        "wall_s": 0.32386016700002074
+        "wall_s": 0.32122208299915656
       }
     },
     {
       "name": "1000-pendulum ensemble RK4",
-      "value": 7621607.526860068,
+      "value": 7811653.753793353,
       "unit": "pendulum-steps/s",
       "settings": {
         "t_max": 5.0,
         "dt": 0.002,
-        "wall_s": 0.3280147909990774
+        "wall_s": 0.3200346659996285
       }
     },
     {
       "name": "first-flip map 200x200 (auto: 1 process)",
-      "value": 2.3260281660004694,
+      "value": 2.2086540830005106,
       "unit": "s",
       "settings": {
         "t_max": 10.0,
@@ -133,7 +133,7 @@
     },
     {
       "name": "first-flip map 400x400 (9 processes)",
-      "value": 7.658290709001449,
+      "value": 2.4174102500001027,
       "unit": "s",
       "settings": {
         "t_max": 10.0,
@@ -142,27 +142,27 @@
     },
     {
       "name": "first-flip map 400x400 (1 process)",
-      "value": 12.110537250000561,
+      "value": 8.5981110419998,
       "unit": "s",
       "settings": {}
     },
     {
       "name": "400x400 map parallel speed-up",
-      "value": 1.5813629581554018,
+      "value": 3.556744678318227,
       "unit": "x",
       "settings": {
         "workers": 9
       }
     },
     {
-      "name": "raster render 640x640 (fade trail + glow)",
-      "value": 30.604150147095417,
+      "name": "raster render 640x640 (default monochrome style, fade trail)",
+      "value": 102.84335444320274,
       "unit": "frames/s",
       "settings": {}
     },
     {
       "name": "GIF export 5 s @ 20 fps, 480x480",
-      "value": 2.0377820410012646,
+      "value": 0.7194274169996788,
       "unit": "s",
       "settings": {
         "frames": 100
@@ -170,7 +170,7 @@
     },
     {
       "name": "MP4 export 5 s @ 30 fps, 1280x720",
-      "value": 11.498660875000496,
+      "value": 3.67336187500041,
       "unit": "s",
       "settings": {
         "frames": 150
@@ -184,7 +184,7 @@
     },
     {
       "name": "peak traced memory: 100-pendulum ensemble 10 s",
-      "value": 2.156513214111328,
+      "value": 2.1597862243652344,
       "unit": "MiB",
       "settings": {}
     }
@@ -198,17 +198,17 @@
       "memory_gb": 16.0
     },
     "chaos_lab_version": "0.2.0",
-    "git_commit": "186d92d",
-    "created_utc": "2026-11-07T02:48:57+00:00",
+    "git_commit": "249277a",
+    "created_utc": "2026-11-07T07:18:12+00:00",
     "python": "3.14.7",
     "numpy": "2.5.4",
     "scipy": "1.18.1",
     "matplotlib": "3.11.2",
     "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
     "load_average_1_5_15min": [
-      4.47509765625,
-      6.04443359375,
-      5.98388671875
+      3.47314453125,
+      3.52734375,
+      3.5458984375
     ]
   }
 }
