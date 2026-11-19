@@ -1,0 +1,41 @@
+name: Web demo
+
+# Builds the static web demo and publishes it to the gh-pages branch, which
+# GitHub Pages serves (Settings -> Pages -> Deploy from a branch -> gh-pages, / (root)).
+#
+# Runs on demand only (Actions tab -> Web demo -> "Run workflow"), like CI, while
+# automatic Actions runs are paused. To redeploy on every push to main, add:
+#   push:
+#     branches: [main]
+# Without Actions, publish from your machine instead (see docs/web-demo.md).
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build
+        run: python scripts/build_web.py
+      - name: Publish to gh-pages
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd _site
+          git init -q -b gh-pages
+          git config user.name "github-actions[bot]"
+          git config user.email "41898296+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Deploy web demo from ${GITHUB_SHA::7}"
+          git push -q --force "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" gh-pages

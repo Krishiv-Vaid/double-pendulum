@@ -16,7 +16,7 @@ export function mount(root) {
     try { arts = (await api.get("/api/gallery")).artworks; } catch (e) { toast(e.message, "err"); }
     if (!arts.length) grid.append(h("div", { class: "empty" }, "No artworks yet. Open Chaos Studio and choose “Save to gallery”."));
     for (const a of arts) {
-      const src = `/api/gallery/${a.id}/image`;
+      const src = a.src || `/api/gallery/${a.id}/image`; // the web demo sends the image inline
       const img = h("img", { class: "thumb", src, alt: a.title, loading: "lazy", style: { cursor: "zoom-in" } });
       img.addEventListener("click", () => modal(h("div", {}, h("img", { src, alt: a.title, style: { width: "100%", borderRadius: "10px" } }),
         h("pre", { class: "mono", style: { fontSize: "11px", whiteSpace: "pre-wrap", color: "var(--text-2)" } }, JSON.stringify(a.config, null, 2)))));

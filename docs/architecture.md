@@ -95,4 +95,4 @@ visualization → export/UI.**
 | `exports/data.py` | CSV with units, bundles, reproducibility stamp |
 | `cli.py` | `python -m pendulum_sim …` |
 | `benchmarks.py` | reproducible benchmark suite |
-| `app/` | interactive web dashboard (stdlib HTTP server + canvas frontend) |
+| `app/` | interactive web dashboard (stdlib HTTP server + canvas frontend); `app/browser.py` serves the same API inside the browser for the [web demo](web-demo.md) |

@@ -16,6 +16,7 @@ from __future__ import annotations
 import base64
 import math
 import os
+import sys
 import time
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from dataclasses import replace
@@ -38,6 +39,8 @@ MAX_ENSEMBLE_WORK = 4e7  # members x steps
 MAX_SWEEP_WORK = 6e8  # points x steps for parameter sweeps
 MAX_POINCARE_TRAJ = 24
 MAX_POINCARE_T = 2000.0
+# Process pools need fork/spawn, which the in-browser (Pyodide) build does not have.
+CAN_FORK = sys.platform != "emscripten"
 
 
 class ApiError(ValueError):
@@ -429,19 +432,27 @@ def poincare_run(body: dict, ctx=None) -> dict:
           "max_points": int(_num(body, "max_points", 4000, 10, 50_000, int))}
     jobs = [(p, y0, t_max, kw) for y0 in initials]
     results: list = [None] * len(jobs)
-    workers = max(1, min(len(jobs), (os.cpu_count() or 2) - 1))
-    with ProcessPoolExecutor(max_workers=workers) as ex:
-        futs = {ex.submit(poincare._section_job, j): i for i, j in enumerate(jobs)}
-        done = 0
-        for fut in as_completed(futs):
-            results[futs[fut]] = fut.result()
-            done += 1
+    workers = max(1, min(len(jobs), (os.cpu_count() or 2) - 1)) if CAN_FORK else 1
+    if workers == 1:
+        for i, j in enumerate(jobs):
+            results[i] = poincare._section_job(j)
             if ctx is not None:
-                ctx.progress(done / len(jobs))
+                ctx.progress((i + 1) / len(jobs))
                 if ctx.cancelled():
-                    for f in futs:
-                        f.cancel()
                     raise InterruptedError
+    else:
+        with ProcessPoolExecutor(max_workers=workers) as ex:
+            futs = {ex.submit(poincare._section_job, j): i for i, j in enumerate(jobs)}
+            done = 0
+            for fut in as_completed(futs):
+                results[futs[fut]] = fut.result()
+                done += 1
+                if ctx is not None:
+                    ctx.progress(done / len(jobs))
+                    if ctx.cancelled():
+                        for f in futs:
+                            f.cancel()
+                        raise InterruptedError
     return {
         "energy": E,
         "surface": "θ1 = 0 (mod 2π), crossing with ω1 > 0; plotted (θ2 wrapped, ω2)",

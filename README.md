@@ -9,6 +9,8 @@
 
 <img src="assets/gifs/hero-chaos.gif" width="460" alt="A chaotic double pendulum tracing a fading white trail on black">
 
+**[▶ Try it live in your browser](https://krishiv-vaid.github.io/double-pendulum/)**: no install, the full Python engine runs in the page
+
 </div>
 
 Double Pendulum Simulator is a double pendulum simulator in Python built as a chaos
@@ -19,6 +21,8 @@ maps, and keeps every result reproducible from a saved configuration. Every
 animation in this README is rendered from an actual simulation.
 
 ## 30-second quick start
+
+Just want to play with it? Open the **[web demo](https://krishiv-vaid.github.io/double-pendulum/)**. To run it on your own machine:
 
 ```bash
 git clone https://github.com/Krishiv-Vaid/double-pendulum.git && cd double-pendulum
@@ -90,7 +94,9 @@ Rebuild all assets with `python scripts/generate_gallery.py`. A 720p MP4 is in
 python -m pendulum_sim serve            # opens http://localhost:8765 (add --port N, --no-browser)
 ```
 
-The dashboard is a standard-library HTTP server (`pendulum_sim/app/`) with a canvas frontend that
+The same dashboard is published as a **[web demo](https://krishiv-vaid.github.io/double-pendulum/)** that needs no server: it runs this
+Python package in the browser with [Pyodide](https://pyodide.org) (see [docs/web-demo.md](docs/web-demo.md)).
+Locally, the dashboard is a standard-library HTTP server (`pendulum_sim/app/`) with a canvas frontend that
 needs no build step and no internet connection. It drives the same engine as the CLI. Numerical
 state lives on the server and visual state in the browser, so changing a colour, trail or camera
 never re-runs an integration. Heavy experiments run as background jobs with progress bars and a
@@ -302,9 +308,10 @@ pendulum_sim/
 ├── cli.py        python -m pendulum_sim …
 └── benchmarks.py
 double_pendulum.py   original entry point (same CLI and output)
-scripts/             generate_gallery.py, build_gallery_docs.py
+scripts/             generate_gallery.py, build_gallery_docs.py, build_web.py
+web/                 in-browser backend for the web demo (Pyodide worker + fetch shim)
 tests/               pytest suite
-docs/                physics, numerics, architecture, gallery, academy
+docs/                physics, numerics, architecture, gallery, academy, web demo
 ```
 
 ## Development
@@ -340,6 +347,7 @@ updated sidecar.
 - [x] Advanced physics: damping, driving, normal modes, equilibria, moving pivot, triple pendulum
 - [x] Interactive dashboard: playground with time machine, studio, butterfly arena, fractal explorer, phase space, physics lab, notebook, gallery, export studio, challenges, academy
 - [x] Audio sonification and the 3D presentation view (dashboard)
+- [x] Web demo on GitHub Pages: the full dashboard running in the browser with Pyodide
 - [ ] Optional Numba kernels for very large maps (benchmark first)
 - [ ] Browser-side automated UI tests (the backend API is covered by `tests/test_app.py`)
 - [ ] Spherical double pendulum (needs a new, separately derived model)

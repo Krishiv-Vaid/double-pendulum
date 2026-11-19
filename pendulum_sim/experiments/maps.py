@@ -24,6 +24,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import sys
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
@@ -189,6 +190,8 @@ def compute_map(spec: MapSpec, workers: int | None = None, rows_per_chunk: int |
     if workers is None:
         big = spec.nx * spec.ny >= PARALLEL_MIN_PIXELS and spec.observable != "energy"
         workers = min(max(1, (os.cpu_count() or 2) - 1), len(chunks)) if big else 1
+    if sys.platform == "emscripten":  # no process pools in the browser (Pyodide)
+        workers = 1
     out = np.full((spec.ny, spec.nx), np.nan)
     done = 0
     spec_d = spec.to_dict()
